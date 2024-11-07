@@ -15,7 +15,7 @@ end
 x0 = [0.0, 0.0]
 result = optimize(f, x0)
 
-# optimize(f, g, x0; inplace = false)
+# result = optimize(f, g!, x0; inplace = false)
 
 solver = Optim.summary(result)
 xfit = Optim.minimizer(result)

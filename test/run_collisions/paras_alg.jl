@@ -32,16 +32,20 @@ is_plotMs = 0
 ## Parameters: Optimization solver
 ## Algorithm `King`: Optimizations for `fvL`, `jMsmax = ℓ + dj * (3(nMod-1) + (3-1))`.
 
-NL_solve = :LeastSquaresOptim     # [:LeastSquaresOptim, :NL_solve, :JuMP]
+# [:LeastSquaresOptim, :NL_solve, :JuMP]
+NL_solve = :LeastSquaresOptim             #  More stability
 # NL_solve = :NLsolve
 
-if NL_solve == :NLsolve
+if NL_solve == :LeastSquaresOptim
     NL_solve_method = :trust_region    # [:trust_region, :newton, :anderson]
-    # NL_solve_method = :newton        # always to be falure.
-elseif NL_solve == :LeastSquaresOptim
+elseif NL_solve == :NLsolve
     NL_solve_method = :trust_region    # [:trust_region, :newton, :anderson]
+    NL_solve_method = :newton        # always to be falure.
 else
 end 
+is_Jacobian = true      # (=true, default) Whether Jacobian matrix will be used to improve the performance of the optimizations.
+show_trace = false      # (=false, default) 
+
 rtol_tk = 1e-8                         # Relative tolerance for time
 ## Parameters: velocity space with key parameters (LM,vGmax,nnv0,ocp)
 if 1 == 1
@@ -150,20 +154,18 @@ if 1 == 1
     is_IKh_const = true     # (=true, default) whether keep the values of `Ih` and `Kh` to be constants for spice `a` during optimization of the `King` function.
 
     # ########## The initial solution noises
-    is_Jacobian = true      # (=true, default) Whether Jacobian matrix will be used to improve the performance of the optimizations.
-    show_trace = false      # (=false, default) 
-    maxIterKing = 100       # (=200 default) The maximum inner iteration number for King's optimization
+    maxIterKing = 500       # (=200 default) The maximum inner iteration number for King's optimization
     p_tol = epsT / 1000           # (= 1e-13, default)
     g_tol = epsT / 1000 
     f_tol = epsT / 1000 
 
     # NL_solve == :LeastSquaresOptim
-    (optimizer, optimizer_abbr) = (LeastSquaresOptim.Dogleg, :dl)
+    (optimizer, optimizer_abbr) = (LeastSquaresOptim.Dogleg, :dl)  # More stability than `:lm`
     # (optimizer, optimizer_abbr) = (LeastSquaresOptim.LevenbergMarquardt, :lm)
 
-    factorMethod = :QR     # factorMethod = [:QR, :Cholesky, :LSMR]
+    factorMethod = :QR     # factorMethod = [:QR, :Cholesky, :LSMR]    # `:QR` is more stability
     # factorMethod = :Cholesky
-    (factor, factor_abbr) = (LeastSquaresOptim.QR(), :QR)     # `=QR(), default`
+    (factor, factor_abbr) = (LeastSquaresOptim.QR(), :QR)     # `=QR(), default`  # More stability
     # factor = LeastSquaresOptim.Cholesky()
     # factor = LeastSquaresOptim.LSMR()
 

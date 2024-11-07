@@ -1,4 +1,5 @@
 ## Mathematic constants
+datatype = Float64
 Pi = π |> datatype
 const sqrt2 = 2^0.5
 const sqrtpi = 1.772453850905516027298

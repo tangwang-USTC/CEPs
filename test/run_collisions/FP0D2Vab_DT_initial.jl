@@ -9,11 +9,14 @@ pathdatas = "D:/atom/datas/2023FP/CEPs"
 ispath(pathdatas) || mkpath(pathdatas)
 
 cd(pathroot)
+include(joinpath(pathroot,"src/ES/ESs.jl"))
+include(joinpath(pathroot,"test/run_collisions/algorithm/modules.jl"))
+
 # include(joinpath(pathroot,"test/run_collisions/algorithm/modules.jl"))
 # include(joinpath(pathroot,"test/run_collisions/algorithm/main.jl"))
 
-path_paper = "test/run_collisions/paperfig/DT/fM_nMod1"
-path_paper_fM = "test/run_collisions/paperfig/plotting/fM"
+# path_paper = "test/run_collisions/paperfig/DT/fM_nMod1"
+# path_paper_fM = "test/run_collisions/paperfig/plotting/fM"
 
 gr()            # The default plot
 # plot() 

@@ -4,7 +4,8 @@
 
 modelDM(v,p) = p[1] * modelDMexp(v,p[2:3],L1-1)
 
-uu = ûa[isp3]
+uMax = 20.0
+uu = 0.2
 p=[1.0, 1.0, uu]
 lbs = [-20.0, 0.0, 0]
 ubs = [20.0, 20.0, uMax]
