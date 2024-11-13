@@ -133,7 +133,6 @@ end
 
 """
 
-# nMod = 1
 # 0.5D, []
 function MhsKMM0(j::Int64,nai::T,uai::T,vthi::T;is_renorm::Bool=true,mathtype::Symbol=:Exact) where{T}
     
@@ -185,10 +184,8 @@ function MhsKMM0(j::Int64,nai::T,uai::T,vthi::T;is_renorm::Bool=true,mathtype::S
                     a = 1.0
                     for k in 1:Int(j/2)
                         a += CjLk(j,k) * (uhh)^(2k)
-                        # @show j,k,CjLk(j,k)
                     end
                 end
-                # @show is_renorm
                 if is_renorm
                     return a * nai * vthi^j               # * uhh^L 
                 else
@@ -211,6 +208,11 @@ function MhsKMM0(j::Int64,nai::T,uai::T,vthi::T;is_renorm::Bool=true,mathtype::S
     end
 end
 
+# j = L = 0
+function MhsKMM0(nai::T) where{T}
+    
+    return nai
+end
 """
 """
 

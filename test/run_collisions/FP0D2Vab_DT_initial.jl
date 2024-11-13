@@ -130,13 +130,6 @@ else
     is_NKC_vhthInitial = true
     is_NKC_vhthInitial = false
 end
-const nhMax = 1e8       # nₑ = 10n₂₀  ~  nfuel = 10⁶n₂₀; nEP = 10¹³. The maximum absolute span of the submoments;
-const uhMax = 100.0     # uh ≤ 3.0    ~  L_limit = 45. The maximum absolute span of the submoments;
-const uhMin = 1e-4
-const vhthMax = 50.0    # TD = 1 keV  ~  Tα = 3 MeV. The maximum absolute span of the submoments;
-const vhthMin = 1e-6    # TD = 1 keV  ~  Tα = 3 MeV. The maximum absolute span of the submoments;
-const vhthInitial = 4e-1# vthi
-const nhInitial = 2e-1  # nai
 vhthRatio = 0.5
 
 # include(joinpath(pathroot, path_paper,"nuTs_submomentsTa10Tb15.jl"))

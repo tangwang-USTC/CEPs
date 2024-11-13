@@ -15,12 +15,12 @@
 function CMjL(j::Int)
 
   if j == -2
-      return 2
+      return 2.0
   elseif j == -1
       return 2.0 / sqrtpi
   elseif j == 0
-      return 1
-  elseif j == 1
+      return 1.0
+  elseif j == 1.0
       return 2.0 / sqrtpi
   elseif j == 2
       return 1.5
@@ -63,6 +63,14 @@ function CMjL(j::Int,L::Int)
     end
 end
 
+function CMLL(L::Int)
+    
+    if L == 0
+        return 1.0
+    else
+        return 2L + 1.0
+    end
+end
 """
   Coefficient ofin the Characteristic Parameter Equations (CPEs)
   when `f̂₀(v̂)` is approximated by the KMM:

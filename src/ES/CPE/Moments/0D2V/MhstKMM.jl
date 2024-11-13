@@ -105,7 +105,11 @@ function MhsKMM!(Mhst::AbstractVector{T},jvec::Vector{Int},L::Int,
     nMod::Int;is_renorm::Bool=true,mathtype::Symbol=:Exact) where{T}
     
     if sum(abs.(uai)) ≤ eps(T)
-        MhsMMM!(Mhst,jvec,L,nai,vthi;is_renorm=is_renorm) 
+        if L == 0
+            MhsMMM!(Mhst,jvec,nai,vthi;is_renorm=is_renorm) 
+        else
+            Mhst[:] .= 0.0
+        end
     else
         k = 0 
         for j in jvec 
@@ -121,7 +125,11 @@ function MhsKMM(j::Int,L::Int,nai::AbstractVector{T},uai::AbstractVector{T},vthi
     nMod::Int;is_renorm::Bool=true,mathtype::Symbol=:Exact) where{T}
     
     if sum(abs.(uai)) ≤ eps(T)
-        return MhsMMM(j,L,nai,vthi;is_renorm=is_renorm) 
+        if L == 0
+            return MhsMMM(j,nai,vthi;is_renorm=is_renorm) 
+        else
+            return 0.0
+        end
     else
         Mh = 0.0 
         for s = 1:nMod 
@@ -130,51 +138,99 @@ function MhsKMM(j::Int,L::Int,nai::AbstractVector{T},uai::AbstractVector{T},vthi
         if is_renorm
             return Mh
         else
-            return CMjL(j) * Mh
+            if j == L
+                return CMLL(L) * Mh
+            else
+                return CMjL(j,L) * Mh
+            end
         end
     end
 end
+
+"""
+    Mhst = MhsKMM(j,L,nai,uai,vthi;is_renorm=is_renorm,mathtype=mathtype)
+    Mhst = MhsKMM(L,nai,uai;is_renorm=is_renorm)
+"""
 
 # 0.5D, []
 function MhsKMM(j::Int,L::Int,nai::T,uai::T,vthi::T;is_renorm::Bool=true,mathtype::Symbol=:Exact) where{T}
     
     if L == 0
+        return MhsKMM0(j,nai,uai,vthi;is_renorm=is_renorm,mathtype=mathtype)
     else
-        hghhhh
-    end
-    if sum(abs.(uai)) ≤ eps(T)
-        if isone(vthi)
-            return MhsMMM(j;is_renorm=is_renorm) * nai
+        if sum(abs.(uai)) ≤ eps(T)
+            return 0.0
         else
-            return MhsMMM(j;is_renorm=is_renorm) * (nai * vthi^j)
-        end
-    else
-        if iseven(j)
-            if isone(vthi)
-                if j == -2
-                    if mathtype == :Exact
-                    elseif mathtype == :Taylor0
-                    else
-                        ygtrttt
-                        if mathtype == :Taylor1
-                        elseif TaylorInf
-                        else
-                            aswdfcgv
-                        end
-                    end
-                else
-                    a = 1.0 
-                    for k in 1:Int(j/2)
-                        a += CjLk(j,k) * uai^(2k)
-                    end
-                end
-                if is_renorm
-                    return a * nai
-                else
-                    return CMjL(j) * a * nai
-                end
+            if j == L
+                return MhsKMM(L,nai,uai;is_renorm=is_renorm)
             else
-                if j == -2
+                jL = j-L
+                if iseven(jL)
+                    if isone(vthi)
+                        if jL < 0
+                            hhjmmm
+                            if mathtype == :Exact
+                            elseif mathtype == :Taylor0
+                            else
+                                ygtrttt
+                                if mathtype == :Taylor1
+                                elseif TaylorInf
+                                else
+                                    aswdfcgv
+                                end
+                            end
+                        else
+                            # uvth2 = (uai/vthi)^2
+                            N = jL / 2 |> Int
+                            OrjL = OrjLNb((uai)^2,j,L,N;rtol_OrjL=rtol_OrjL)
+                            if L == 1
+                                if is_renorm
+                                    return MhrjL0D2V(j,L,nai,uai,OrjL)
+                                else
+                                    return CMjL(j,L) * MhrjL0D2V(j,L,nai,uai,OrjL)
+                                end
+                            else
+                                if is_renorm
+                                    return MhrjL0D2V(j,L,nai,uai^L,OrjL)
+                                else
+                                    return CMjL(j,L) * MhrjL0D2V(j,L,nai,uai^L,OrjL)
+                                end
+                            end
+                        end
+                    else
+                        if jL < 0
+                            hhjmmm
+                            if mathtype == :Exact
+                            elseif mathtype == :Taylor0
+                            else
+                                ygtrttt
+                                if mathtype == :Taylor1
+                                elseif TaylorInf
+                                else
+                                    aswdfcgv
+                                end
+                            end
+                        else
+                            # uvth2 = (uai/vthi)^2
+                            N = jL / 2 |> Int
+                            OrjL = OrjLNb((uai/vthi)^2,j,L,N;rtol_OrjL=rtol_OrjL)
+                            if L == 1
+                                if is_renorm
+                                    return MhrjL0D2V(j,L,nai,uai,vthi^jL,OrjL)
+                                else
+                                    return CMjL(j,L) * MhrjL0D2V(j,L,nai,uai,vthi^jL,OrjL)
+                                end
+                            else
+                                if is_renorm
+                                    return MhrjL0D2V(j,L,nai,uai^L,vthi^jL,OrjL)
+                                else
+                                    return CMjL(j,L) * MhrjL0D2V(j,L,nai,uai^L,vthi^jL,OrjL)
+                                end
+                            end
+                        end
+                    end
+                else
+                    sdfgbhnm
                     if mathtype == :Exact
                     elseif mathtype == :Taylor0
                     else
@@ -185,29 +241,32 @@ function MhsKMM(j::Int,L::Int,nai::T,uai::T,vthi::T;is_renorm::Bool=true,mathtyp
                             aswdfcgv
                         end
                     end
-                else
-                    a = 1.0
-                    uhh = uai/vthi 
-                    for k in 1:Int(j/2)
-                        a += CjLk(j,k) * (uhh)^(2k)
-                    end
-                end
-                if is_renorm
-                    return a * nai * vthi^j
-                else
-                    return CMjL(j) * a * nai * vthi^j
                 end
             end
+        end
+    end
+end
+
+# j = L
+function MhsKMM(L::Int,nai::T,uai::T;is_renorm::Bool=true) where{T}
+    
+    if L == 0
+        return MhsKMM0(nai)
+    else
+        if sum(abs.(uai)) ≤ eps(T)
+            return 0.0
         else
-            sdfgbhnm
-            if mathtype == :Exact
-            elseif mathtype == :Taylor0
-            else
-                ygtrttt
-                if mathtype == :Taylor1
-                elseif TaylorInf
+            if L == 1
+                if is_renorm
+                    return MhrLL0D2V(L,nai,uai)
                 else
-                    aswdfcgv
+                    return CMLL(L) * MhrLL0D2V(L,nai,uai)
+                end
+            else
+                if is_renorm
+                    return MhrLL0D2V(L,nai,uai^L)
+                else
+                    return CMLL(L) * MhrLL0D2V(L,nai,uai^L)
                 end
             end
         end
@@ -244,49 +303,88 @@ end
 function MhsKMM(j::Int,L::Int,uai::T;is_renorm::Bool=true,mathtype::Symbol=:Exact) where{T}
     
     if L == 0
+        return MhsKMM0(j,uai;is_renorm=is_renorm,mathtype=mathtype)
     else
-        sdcfvbb
-    end
-    if abs(uai) ≤ eps(T)
-        return MhsMMM(j)
-    else
-        if iseven(j)
-            if j == -2
-                if mathtype == :Exact
-                elseif mathtype == :Taylor0
-                else
-                    ygtrttt
-                    if mathtype == :Taylor1
-                    elseif TaylorInf
-                    else
-                        aswdfcgv
-                    end
-                end
-            else
-                a = 1.0 
-                for k in 1:(j/2) 
-                    a += CjLk(j,k) * uai^(2k)
-                end
-            end
-            if is_renorm
-                return a
-            else
-                return CMjL(j) * a
-            end
+        if sum(abs.(uai)) ≤ eps(T)
+            return 0.0
         else
-            if mathtype == :Exact
-            elseif mathtype == :Taylor0
+            if j == L 
+                return MhsKMM(L,uai;is_renorm=is_renorm)
             else
-                ygtrttt
-                if mathtype == :Taylor1
-                elseif TaylorInf
+                jL = j-L
+                if iseven(jL)
+                    if jL < 0
+                        hhjmmm
+                        if mathtype == :Exact
+                        elseif mathtype == :Taylor0
+                        else
+                            ygtrttt
+                            if mathtype == :Taylor1
+                            elseif TaylorInf
+                            else
+                                aswdfcgv
+                            end
+                        end
+                    else
+                        # uvth2 = (uai/vthi)^2
+                        N = jL / 2 |> Int
+                        OrjL = OrjLNb((uai)^2,j,L,N;rtol_OrjL=rtol_OrjL)
+                        if L == 1
+                            if is_renorm
+                                return MhrjL0D2V(j,L,nai,uai,OrjL)
+                            else
+                                return CMjL(j,L) * MhrjL0D2V(j,L,nai,uai,OrjL)
+                            end
+                        else
+                            if is_renorm
+                                return MhrjL0D2V(j,L,nai,uai^L,OrjL)
+                            else
+                                return CMjL(j,L) * MhrjL0D2V(j,L,nai,uai^L,OrjL)
+                            end
+                        end
+                    end
                 else
-                    aswdfcgv
+                    sdfgbhnm
+                    if mathtype == :Exact
+                    elseif mathtype == :Taylor0
+                    else
+                        ygtrttt
+                        if mathtype == :Taylor1
+                        elseif TaylorInf
+                        else
+                            aswdfcgv
+                        end
+                    end
                 end
             end
         end
     end
 end
 
+# j = L
+function MhsKMM(L::Int,uai::T;is_renorm::Bool=true) where{T}
+    
+    if L == 0
+        return 1.0
+    else
+        if sum(abs.(uai)) ≤ eps(T)
+            return 0.0
+        else
+            if L == 1
+                if is_renorm
+                    return MhrLL0D2V(L,uai)
+                else
+                    return CMLL(L) * MhrLL0D2V(L,uai)
+                end
+            else
+                if is_renorm
+                    return MhrLL0D2V(L,uai^L)
+                else
+                    return CMLL(L) * MhrLL0D2V(L,uai^L)
+                end
+            end
+        end
+    end
+end
 
 

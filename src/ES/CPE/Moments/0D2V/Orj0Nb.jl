@@ -6,7 +6,7 @@
   
   Outputs:
     Orj0Nb!(OrjL,uvth2,j,N,nMod;rtol_OrjL=rtol_OrjL)
-    OrjL = Orj0Nb(uvth2,j,N,nMod;rtol_OrjL=rtol_OrjL)
+    OrjL = Orj0Nb(uvth2,j,N;rtol_OrjL=rtol_OrjL)
 """
 
 function Orj0Nb!(OrjL::AbstractVector{T},uvth2::AbstractVector{T},
@@ -58,7 +58,7 @@ end
   
   Outputs:
     OrjLN2b!(OrjL2,uvth2,j,N,nMod;rtol_OrjL=rtol_OrjL)
-    OrjL2 = OrjLN2b(uvth2,j,N,nMod;rtol_OrjL=rtol_OrjL)
+    OrjL2 = OrjLN2b(uvth2,j,N;rtol_OrjL=rtol_OrjL)
 """
 
 function Orj0N2b!(OrjL2::AbstractVector{T},uvth2::AbstractVector{T},
@@ -110,7 +110,7 @@ end
   
   Outputs:
     Orj0N2Nb!(Orj02,Orj0,uvth2,j,N,nMod;rtol_OrjL=rtol_OrjL)
-    Orj02,Orj0 = Orj0N2Nb(uvth2,j,N,nMod;rtol_OrjL=rtol_OrjL)
+    Orj02,Orj0 = Orj0N2Nb(uvth2,j,N;rtol_OrjL=rtol_OrjL)
 """
 
 function Orj0N2Nb!(Orj02::AbstractVector{T},Orj0::AbstractVector{T},uvth2::AbstractVector{T},
@@ -123,9 +123,10 @@ function Orj0N2Nb!(Orj02::AbstractVector{T},Orj0::AbstractVector{T},uvth2::Abstr
         Orj0[:] = CjLk(j,1) * uvth2
         Orj02[:] = 2 * Orj0[:]
     else
-        Orj0[:] = CjLk(j,1) * uvth2
-        Orj02[:] = 2 * Orj0[:]
         Cj0ks = CjLk.(j,1:N)
+        k = 1
+        Orj0[:] = Cj0ks[k] * uvth2
+        Orj02[:] = 2 * Orj0[:]
         for i in 1:nMod
             for k in 2:N
                 ak = Cj0ks[k] * uvth2[i]^k

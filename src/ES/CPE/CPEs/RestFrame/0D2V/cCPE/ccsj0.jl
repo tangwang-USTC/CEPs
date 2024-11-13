@@ -3,6 +3,8 @@
 """
 
 """
+  `x₁ₗ = [n̂₁ₗ,û₁ₗ,v̂th₁ₗ] = [nh[nMod],uh[nMod],vhth[nMod]]`
+
   Inputs:
   Outputs:
     ccsj0!(nh,uh,vhth,vhth2,uvth2,Mhst,nMod)

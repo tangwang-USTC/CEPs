@@ -3,11 +3,11 @@ is_dMhck1_Mhck = false
 is_dMhck1_abs = true
 is_NK_nai_const = true
 # ## Parameters of algorithms, models and solvers
-if is_sol_fvLc
-    functionName = :fvL
-    # i_iter_rs2 = 0
-    rtol_vGdom = 9e-1
-end
+# if is_sol_fvLc
+#     functionName = :fvL
+#     # i_iter_rs2 = 0
+#     rtol_vGdom = 9e-1
+# end
 is_err_renorm = true              # in `MsnnEvens.jl`, `err /= Mhc`
 is_njMs_fix = true                # When the number of observative moments if equivalent which means `nMjMs .= njMs`
 is_MjMs_max = true                # (default := true) which means `njMs :> 2nMod` if for `Mck` and `nMod` is to decided parameters `nai`, `uai` and `vthi`. 
@@ -16,11 +16,11 @@ is_Ms_nuT = false                 # When `nMod = 1` in `Ms` version, enforcing t
 is_Cerror_dtnIKTs = true          # Whether to save the local conservation errors of `dtn, dtIs, dtKs` during the Fokker-Planck collision processes.
 njMs_fix = 8                     # (=0, default),  for `njMs` in `vʲ⁺²`. The number of observative moments for every harmonic, `∀ℓ` which will changed according to the characteristics of `fvL`
 
-if is_fvL_CP
-    is_moments_out = false
-else
-    is_moments_out = true         # (default: false) in `Ms` version
-end
+# if is_fvL_CP
+#     is_moments_out = false
+# else
+#     is_moments_out = true         # (default: false) in `Ms` version
+# end
 
 #### for testting version
 is_check_conservation_dtM = true
@@ -28,23 +28,6 @@ is_check_vth = true               # The covergence checking
 
 # is_qconservation = false
 is_plotMs = 0
-
-## Parameters: Optimization solver
-## Algorithm `King`: Optimizations for `fvL`, `jMsmax = ℓ + dj * (3(nMod-1) + (3-1))`.
-
-# [:LeastSquaresOptim, :NL_solve, :JuMP]
-NL_solve = :LeastSquaresOptim             #  More stability
-# NL_solve = :NLsolve
-
-if NL_solve == :LeastSquaresOptim
-    NL_solve_method = :trust_region    # [:trust_region, :newton, :anderson]
-elseif NL_solve == :NLsolve
-    NL_solve_method = :trust_region    # [:trust_region, :newton, :anderson]
-    NL_solve_method = :newton        # always to be falure.
-else
-end 
-is_Jacobian = true      # (=true, default) Whether Jacobian matrix will be used to improve the performance of the optimizations.
-show_trace = false      # (=false, default) 
 
 rtol_tk = 1e-8                         # Relative tolerance for time
 ## Parameters: velocity space with key parameters (LM,vGmax,nnv0,ocp)
@@ -153,24 +136,6 @@ if 1 == 1
     L_Mh_limit = 0          # (=0, default) limit of `L` for `Mh`
     is_IKh_const = true     # (=true, default) whether keep the values of `Ih` and `Kh` to be constants for spice `a` during optimization of the `King` function.
 
-    # ########## The initial solution noises
-    maxIterKing = 500       # (=200 default) The maximum inner iteration number for King's optimization
-    p_tol = epsT / 1000           # (= 1e-13, default)
-    g_tol = epsT / 1000 
-    f_tol = epsT / 1000 
-
-    # NL_solve == :LeastSquaresOptim
-    (optimizer, optimizer_abbr) = (LeastSquaresOptim.Dogleg, :dl)  # More stability than `:lm`
-    # (optimizer, optimizer_abbr) = (LeastSquaresOptim.LevenbergMarquardt, :lm)
-
-    factorMethod = :QR     # factorMethod = [:QR, :Cholesky, :LSMR]    # `:QR` is more stability
-    # factorMethod = :Cholesky
-    (factor, factor_abbr) = (LeastSquaresOptim.QR(), :QR)     # `=QR(), default`  # More stability
-    # factor = LeastSquaresOptim.Cholesky()
-    # factor = LeastSquaresOptim.LSMR()
-
-    # autodiff = :forward  #
-    autodiff = :central    # A little more complicated but maybe obtaining no benefits.
     ############################ AI model: weight function
 
     # Corrections for conservative moments: `n, I, K`

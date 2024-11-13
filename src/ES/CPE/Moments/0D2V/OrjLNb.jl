@@ -6,7 +6,7 @@
   
   Outputs:
     OrjLNb!(OrjL,uvth2,j,L,N,nMod;rtol_OrjL=rtol_OrjL)
-    OrjL = OrjLNb(uvth2,j,L,N,nMod;rtol_OrjL=rtol_OrjL)
+    OrjL = OrjLNb(uvth2,j,L,N;rtol_OrjL=rtol_OrjL)
 """
 
 function OrjLNb!(OrjL::AbstractVector{T},uvth2::AbstractVector{T},
@@ -28,7 +28,6 @@ function OrjLNb!(OrjL::AbstractVector{T},uvth2::AbstractVector{T},
                 end
             end
         end
-        return a
     end
 end
 
@@ -59,7 +58,7 @@ end
   
   Outputs:
     OrjLN2b!(OrjL2,uvth2,j,L,N,nMod;rtol_OrjL=rtol_OrjL)
-    OrjL2 = OrjLN2b(uvth2,j,L,N,nMod;rtol_OrjL=rtol_OrjL)
+    OrjL2 = OrjLN2b(uvth2,j,L,N;rtol_OrjL=rtol_OrjL)
 """
 
 function OrjLN2b!(OrjL2::AbstractVector{T},uvth2::AbstractVector{T},
@@ -111,7 +110,7 @@ end
   
   Outputs:
     OrjLN2Nb!(OrjL2,OrjL,uvth2,j,L,N,nMod;rtol_OrjL=rtol_OrjL)
-    OrjL2,OrjL = OrjLN2Nb(uvth2,j,L,N,nMod;rtol_OrjL=rtol_OrjL)
+    OrjL2,OrjL = OrjLN2Nb(uvth2,j,L,N;rtol_OrjL=rtol_OrjL)
 """
 
 function OrjLN2Nb!(OrjL2::AbstractVector{T},OrjL::AbstractVector{T},uvth2::AbstractVector{T},

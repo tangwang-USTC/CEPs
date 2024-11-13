@@ -77,14 +77,14 @@ if 1 == 1
         println("//////////////////////////////")
         # @show Mhr0s[nModL0],Mhr2s[nModL0],Mhr4s[nModL0] 
         if is_C
-                xssr, is_converged, xfit, niter = optimMhjlC!(naiLt0,uaiLt0,vthiLt0,Mhj0,L,nModL0,NL_solve,DMh024;
+                xssr, is_converged, xfit, niter = optimMhjLC!(naiLt0,uaiLt0,vthiLt0,Mhj0,L,nModL0,NL_solve,DMh024;
                         rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh,
                         optimizer=optimizer,factor=factor,autodiff=autodiff,
                         is_Jacobian=is_Jacobian,show_trace=show_trace,maxIterKing=maxIterKing,
                         p_tol=p_tol,f_tol=f_tol,g_tol=g_tol,NL_solve_method=NL_solve_method,
                         Nspan_optim_nuTi=Nspan_optim_nuTi)
         else
-                xssr, is_converged, xfit, niter = optimMhjl!(naiLt0,uaiLt0,vthiLt0,Mhj0,L,nModL0,NL_solve,DMh024;
+                xssr, is_converged, xfit, niter = optimMhjL!(naiLt0,uaiLt0,vthiLt0,Mhj0,L,nModL0,NL_solve,DMh024;
                         rtol_OrjL=rtol_OrjL,
                         optimizer=optimizer,factor=factor,autodiff=autodiff,
                         is_Jacobian=is_Jacobian,show_trace=show_trace,maxIterKing=maxIterKing,

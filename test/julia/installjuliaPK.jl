@@ -1,22 +1,22 @@
 
 using Pkg
 
-pknames1 = ["Plots","PyPlot","DataFrames","CSV","Format","OhMyREPL","Parsers"]
-pknames2 = ["Latexify","LaTeXStrings","Clustering","BenchmarkTools"]  # LaTeXStrings
-pknames3 = ["AssociatedLegendrePolynomials","ChebyshevApprox","FastTransforms","SpecialFunctions","HypergeometricFunctions","SavitzkyGolay"]
-pknames4 = ["GaussQuadrature","FastGaussQuadrature","QuadGK","Romberg","Trapz","KahanSummation"]
-pknames5 = ["LinearAlgebra","LinearAlgebraX","ForwardDiff","FiniteDifferences"]
-pknames6 = ["OrdinaryDiffEq","DifferentialEquations","DifferentialEquations","DiffEqCallbacks","IterativeSolvers","NLsolve"]
-pknames7 = ["Loess","Dierckx","DataInterpolations","NumericalIntegration","SmoothingSplines"]
-pknames8 = ["Optim","Optimization","Optimisers","LeastSquaresOptim","Ipopt","LsqFit","DeconvOptim","OptimizationProblems","HiGHS","Evolutionary"]
-pknames9 = ["JuMP","Flux","Zygote","ModelingToolkit","Plasmo","MathOptInterface"]
+pknames1 = ["Plots","PyPlot","DataFrames","CSV","Format","Parsers","BenchmarkTools","OhMyREPL"]  # Plots, Datas, files, System
+pknames2 = ["MutableArithmetics","KahanSummation"]  # Arithmetics
+pknames3 = ["AssociatedLegendrePolynomials","ChebyshevApprox","FastTransforms","SpecialFunctions","HypergeometricFunctions","SavitzkyGolay"]  # Special Functions
+pknames4 = ["GaussQuadrature","FastGaussQuadrature","QuadGK","Romberg","Trapz","NumericalIntegration","ForwardDiff","FiniteDifferences"]   # Integrals, Differences
+pknames5 = ["LinearAlgebra","LinearAlgebraX","ToeplitzMatrices"]  # Linear Algebra
+pknames6 = ["OrdinaryDiffEq","DifferentialEquations","DifferentialEquations","DiffEqCallbacks","IterativeSolvers","NLsolve"] # PDE, ODE
+pknames7 = ["Loess","Dierckx","DataInterpolations","SmoothingSplines"]  # Interpolations
+pknames8 = ["Optim","Optimization","Optimisers","LeastSquaresOptim","Ipopt","LsqFit","DeconvOptim","OptimizationProblems","HiGHS","Evolutionary","Convex"] # Optimisers
+pknames9 = ["JuMP","Flux","Zygote","ModelingToolkit","Plasmo","MathOptInterface"]   # Optimization
 pknames10 = ["StableRNGs","Distances","DataDrivenDiffEq"]
-pknames11 = ["CUDA","Metalhead"]  # Para
-pknames12 = ["ToeplitzMatrices"]  # Array
+pknames11 = ["CUDA","Metalhead","Clustering"]  # Parallel
+pknames12 = ["Latexify","LaTeXStrings"]  # LaTeX
 pknames = [pknames1; pknames2; pknames3;pknames4; pknames5;pknames6;pknames7;pknames8;pknames9;pknames10]
 pknames = [pknames; pknames11; pknames12]
 # pknames = [pknames9]
-pknames = ["Evolutionary"]
+pknames = ["MutableArithmetics"]
 for pkname in pknames
     import Pkg; Pkg.add(pkname)
 end

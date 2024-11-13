@@ -27,7 +27,7 @@
     `nai: = [n̂ᵣ]` where `r = 1, 2, ⋯, nMod`
   
   Outputs:
-    is_converged_nMod = optimMhjl!(nai,uai,vthi,Mhst,L,nMod,NL_solve,DMh024;
+    is_converged_nMod = optimMhjL!(nai,uai,vthi,Mhst,L,nMod,NL_solve,DMh024;
                 rtol_OrjL=rtol_OrjL,
                 optimizer=optimizer,factor=factor,autodiff=autodiff,
                 is_Jacobian=is_Jacobian,show_trace=show_trace,maxIterKing=maxIterKing,
@@ -37,7 +37,7 @@
 """
 
 # [nMod]
-function optimMhjl!(nai::AbstractVector{T}, uai::AbstractVector{T}, vthi::AbstractVector{T}, 
+function optimMhjL!(nai::AbstractVector{T}, uai::AbstractVector{T}, vthi::AbstractVector{T}, 
     Mhst::AbstractVector{T}, L::Int, nMod::Int, NL_solve::Symbol, DMh024::AbstractVector{T}; 
     rtol_OrjL::T=1e-10,
     optimizer=Dogleg, factor=QR(), autodiff::Symbol=:central,
@@ -47,7 +47,7 @@ function optimMhjl!(nai::AbstractVector{T}, uai::AbstractVector{T}, vthi::Abstra
 
     # vthi
     if nMod == 1
-        nai[1], uai[1], vthi[1] = optimMhjl(Mhst, L)
+        nai[1], uai[1], vthi[1] = optimMhjL(Mhst, L)
     else
         # The parameter limits for MCF plasma.
         x0 = zeros(3nMod)      # [uai1, vthi1, uai2, vthi2, ⋯]
@@ -75,7 +75,7 @@ function optimMhjl!(nai::AbstractVector{T}, uai::AbstractVector{T}, vthi::Abstra
             x0[i3] = deepcopy(vthi[i])
         end
 
-        xssr, is_converged, xfit, niter = optimMhjl!(x0,Mhst,L,nMod,lbs,ubs,NL_solve; 
+        xssr, is_converged, xfit, niter = optimMhjL!(x0,Mhst,L,nMod,lbs,ubs,NL_solve; 
             rtol_OrjL=rtol_OrjL,
             optimizer=optimizer, factor=factor, autodiff=autodiff,
             is_Jacobian=is_Jacobian, show_trace=show_trace, maxIterKing=maxIterKing,
@@ -106,7 +106,7 @@ end
     `nai: = [n̂ᵣ]` where `r = 1, 2, ⋯, nMod`
   
   Outputs:
-    is_converged_nMod = optimMhjl!(nai,uai,vthi,Mhst,nMod,NL_solve,DMh024;
+    is_converged_nMod = optimMhjL!(nai,uai,vthi,Mhst,nMod,NL_solve,DMh024;
                 rtol_OrjL=rtol_OrjL, 
                 optimizer=optimizer,factor=factor,autodiff=autodiff,
                 is_Jacobian=is_Jacobian,show_trace=show_trace,maxIterKing=maxIterKing,
@@ -115,7 +115,7 @@ end
 """
 
 # nMode = 1
-function optimMhjl(Mhst::AbstractVector{T},L::Int) where{T}
+function optimMhjL(Mhst::AbstractVector{T},L::Int) where{T}
 
     uh2 = ((L+2.5) * (Mhst[2]) - (L+1.5) * Mhst[3])^0.5
     if iseven(L)
@@ -129,7 +129,7 @@ function optimMhjl(Mhst::AbstractVector{T},L::Int) where{T}
 end
 
 # [nMod]
-function optimMhjl!(x0::AbstractVector{T}, Mhst::AbstractVector{T}, L::Int, nMod::Int, 
+function optimMhjL!(x0::AbstractVector{T}, Mhst::AbstractVector{T}, L::Int, nMod::Int, 
     lbs::AbstractVector{T}, ubs::AbstractVector{T}, NL_solve::Symbol; 
     rtol_OrjL::T=1e-10,
     optimizer=Dogleg, factor=QR(), autodiff::Symbol=:central,
@@ -138,30 +138,30 @@ function optimMhjl!(x0::AbstractVector{T}, Mhst::AbstractVector{T}, L::Int, nMod
     NL_solve_method::Symbol=:newton) where {T}
 
     nh,uh,vhth,vhth2,uvth2 = zeros(T,nMod),zeros(T,nMod),zeros(T,nMod),zeros(T,nMod),zeros(T,nMod),zeros(T,nMod)
-    # res = optimMhjl(x0, Mhst, L, nMod, NL_solve; 
+    # res = optimMhjL(x0, Mhst, L, nMod, NL_solve; 
     #     nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,lbs=lbs,ubs=ubs,
     #     rtol_OrjL=rtol_OrjL,
     #     optimizer=optimizer, factor=factor, autodiff=autodiff,
     #     is_Jacobian=is_Jacobian, show_trace=show_trace, maxIterKing=maxIterKing,
     #     p_tol=p_tol, f_tol=f_tol, g_tol=g_tol, NL_solve_method=NL_solve_method)
     
-    Mhjl_GKMM!(out, x) = CPEjl!(out, x, L, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,
+    MhjL_GKMM!(out, x) = CPEjL!(out, x, L, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,
                                 rtol_OrjL=rtol_OrjL)
     if NL_solve == :LeastSquaresOptim
         if is_Jacobian
-            J!(J, x) = JacobCPEjl!(J, x, L, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
+            J!(JM, x) = JacobCPEjL!(JM, x, L, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
                                     rtol_OrjL=rtol_OrjL)
-            nls = LeastSquaresProblem(x=x0, (f!)=Mhjl_GKMM!, (g!)=J!, output_length=length(x0), autodiff=autodiff)
+            nls = LeastSquaresProblem(x=x0, (f!)=MhjL_GKMM!, (g!)=J!, output_length=length(x0), autodiff=autodiff)
         else
-            nls = LeastSquaresProblem(x=x0, (f!)=Mhjl_GKMM!, output_length=length(x0), autodiff=autodiff)
+            nls = LeastSquaresProblem(x=x0, (f!)=MhjL_GKMM!, output_length=length(x0), autodiff=autodiff)
         end
         res = optimize!(nls, optimizer(factor), iterations=maxIterKing, show_trace=show_trace,
             x_tol=p_tol, f_tol=f_tol, g_tol=g_tol, lower=lbs, upper=ubs)
     elseif NL_solve == :NLsolve
         if is_Jacobian
-            Js!(J, x) = JacobCPEjl!(J, x, L, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
+            Js!(JM, x) = JacobCPEjL!(JM, x, L, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
                                     rtol_OrjL=rtol_OrjL)
-            nls = OnceDifferentiable(Mhjl_GKMM!, Js!, x0, similar(x0))
+            nls = OnceDifferentiable(MhjL_GKMM!, Js!, x0, similar(x0))
             if NL_solve_method == :trust_region
                 res = nlsolve(nls, x0, method=NL_solve_method, factor=1.0, autoscale=true, xtol=p_tol, ftol=f_tol,
                     iterations=maxIterKing, show_trace=show_trace)
@@ -170,7 +170,7 @@ function optimMhjl!(x0::AbstractVector{T}, Mhst::AbstractVector{T}, L::Int, nMod
                     iterations=maxIterKing, show_trace=show_trace)
             end
         else
-            nls = OnceDifferentiable(Mhjl_GKMM!, x0, similar(x0))
+            nls = OnceDifferentiable(MhjL_GKMM!, x0, similar(x0))
             if NL_solve_method == :trust_region
                 res = nlsolve(nls, x0, method=NL_solve_method, factor=1.0, autoscale=true, xtol=p_tol, ftol=f_tol,
                     iterations=maxIterKing, show_trace=show_trace, autodiff=:forward)
@@ -206,7 +206,7 @@ end
     Mhst: = M̂ⱼₗ*, which is the renormalized general kinetic moments.
   
   Outputs:
-  res = optimMhjl(x0, Mhst, L, nMod, NL_solve; 
+  res = optimMhjL(x0, Mhst, L, nMod, NL_solve; 
             nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,lbs=lbs,ubs=ubs,
             rtol_OrjL=rtol_OrjL,
             optimizer=optimizer, factor=factor, autodiff=autodiff,
@@ -216,7 +216,7 @@ end
 """
 
 # [nMod ≥ 2]
-function optimMhjl(x0::AbstractVector{T}, Mhst::AbstractVector{T}, L::Int, nMod::Int, NL_solve::Symbol;
+function optimMhjL(x0::AbstractVector{T}, Mhst::AbstractVector{T}, L::Int, nMod::Int, NL_solve::Symbol;
     nh::AbstractVector{T}=[0.1, 1.0], uh::AbstractVector{T}=[0.1, 1.0], vhth::AbstractVector{T}=[0.1, 1.0], 
     vhth2::AbstractVector{T}=[0.1, 1.0], uvth2::AbstractVector{T}=[0.1, 1.0], 
     lbs::AbstractVector{T}=[-uhMax, 0.8], ubs::AbstractVector{T}=[uhMax, 1.2], 
@@ -226,23 +226,23 @@ function optimMhjl(x0::AbstractVector{T}, Mhst::AbstractVector{T}, L::Int, nMod:
     p_tol::Float64=epsT, f_tol::Float64=epsT, g_tol::Float64=epsT,
     NL_solve_method::Symbol=:newton) where {T}
 
-    Mhjl_GKMM!(out, x) = CPEjl!(out, x, L, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,
+    MhjL_GKMM!(out, x) = CPEjL!(out, x, L, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,
                                 rtol_OrjL=rtol_OrjL)
     if NL_solve == :LeastSquaresOptim
         if is_Jacobian
-            J!(J, x) = JacobCPEjl!(J, x, L, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
+            J!(JM, x) = JacobCPEjL!(JM, x, L, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
                                     rtol_OrjL=rtol_OrjL)
-            nls = LeastSquaresProblem(x=x0, (f!)=Mhjl_GKMM!, (g!)=J!, output_length=length(x0), autodiff=autodiff)
+            nls = LeastSquaresProblem(x=x0, (f!)=MhjL_GKMM!, (g!)=J!, output_length=length(x0), autodiff=autodiff)
         else
-            nls = LeastSquaresProblem(x=x0, (f!)=Mhjl_GKMM!, output_length=length(x0), autodiff=autodiff)
+            nls = LeastSquaresProblem(x=x0, (f!)=MhjL_GKMM!, output_length=length(x0), autodiff=autodiff)
         end
         res = optimize!(nls, optimizer(factor), iterations=maxIterKing, show_trace=show_trace,
             x_tol=p_tol, f_tol=f_tol, g_tol=g_tol, lower=lbs, upper=ubs)
     elseif NL_solve == :NLsolve
         if is_Jacobian
-            Js!(J, x) = JacobCPEjl!(J, x, L, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
+            Js!(JM, x) = JacobCPEjL!(JM, x, L, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
                                     rtol_OrjL=rtol_OrjL)
-            nls = OnceDifferentiable(Mhjl_GKMM!, Js!, x0, similar(x0))
+            nls = OnceDifferentiable(MhjL_GKMM!, Js!, x0, similar(x0))
             if NL_solve_method == :trust_region
                 res = nlsolve(nls, x0, method=NL_solve_method, factor=1.0, autoscale=true, xtol=p_tol, ftol=f_tol,
                     iterations=maxIterKing, show_trace=show_trace)
@@ -251,7 +251,7 @@ function optimMhjl(x0::AbstractVector{T}, Mhst::AbstractVector{T}, L::Int, nMod:
                     iterations=maxIterKing, show_trace=show_trace)
             end
         else
-            nls = OnceDifferentiable(Mhjl_GKMM!, x0, similar(x0))
+            nls = OnceDifferentiable(MhjL_GKMM!, x0, similar(x0))
             if NL_solve_method == :trust_region
                 res = nlsolve(nls, x0, method=NL_solve_method, factor=1.0, autoscale=true, xtol=p_tol, ftol=f_tol,
                     iterations=maxIterKing, show_trace=show_trace, autodiff=:forward)

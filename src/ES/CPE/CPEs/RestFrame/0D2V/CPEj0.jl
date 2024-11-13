@@ -40,7 +40,6 @@ function CPEj0!(out::AbstractVector{T}, x::AbstractVector{T}, nMod::Int;
     uvth2::AbstractVector{T}=[0.1, 1.0], Mhst::AbstractVector{T}=[0.1, 1.0],
     rtol_OrjL::T=1e-10) where{T}
 
-    # @show x
     nh[:] = x[1:3:end]
     uh[:] = x[2:3:end]
     vhth[:] = x[3:3:end]
@@ -49,32 +48,27 @@ function CPEj0!(out::AbstractVector{T}, x::AbstractVector{T}, nMod::Int;
     uvth2[:] = (uh).^2 ./ vhth2              # uh .^ 2 ./ vhth .^ 2
 
     nj = 1
-    j = 0
-    out[nj] = sum(nh) - Mhst[nj]
-    # @show j, out[nj]
+    # j = 0
+    out[nj] = sum_kbn(nh) - Mhst[nj]
 
     nj += 1
     j = 2
     Orj0 = CjLk(j,1) * uvth2
-    out[nj] = sum((nh .* vhth2) .* (1 .+ Orj0)) - Mhst[nj]
-    # @show j, out[nj]
+    out[nj] = sum_kbn((nh .* vhth2) .* (1 .+ Orj0)) - Mhst[nj]
 
     nj += 1
     j = 4
-    # Orj0 = zeros(T,nMod)
     N = 2
     Orj0Nb!(Orj0,uvth2,j,N,nMod;rtol_OrjL=rtol_OrjL)
-    out[nj] = sum((nh .* vhth2.^N) .* (1 .+ Orj0)) - Mhst[nj]
-    # @show j, out[nj]
+    out[nj] = sum_kbn((nh .* vhth2.^N) .* (1 .+ Orj0)) - Mhst[nj]
 
     for k in 2:nMod
         for s in 1:3
             nj += 1
             j += 2
-            N = (j) / 2 |> Int
+            N = j / 2 |> Int
             Orj0Nb!(Orj0,uvth2,j,N,nMod;rtol_OrjL=rtol_OrjL)
-            out[nj] = sum((nh .* vhth2.^N) .* (1 .+ Orj0)) - Mhst[nj]
-            # @show j, out[nj]
+            out[nj] = sum_kbn((nh .* vhth2.^N) .* (1 .+ Orj0)) - Mhst[nj]
         end
     end
 end
@@ -93,53 +87,53 @@ function CPEj0!(out::AbstractVector{T}, x::AbstractVector{T}, nMod::Int, Mhst::A
 
     nj = 1
     # j = 0
-    out[nj] = sum(nh) - Mhst[nj]
+    out[nj] = sum_kbn(nh) - Mhst[nj]
 
     nj += 1
     j = 2
     Orj0 = CjLk(j,1) * uvth2
-    out[nj] = sum((nh .* vhth2) .* (1 .+ Orj0)) - Mhst[nj]
+    out[nj] = sum_kbn((nh .* vhth2) .* (1 .+ Orj0)) - Mhst[nj]
 
     nj += 1
     j = 4
-    # Orj0 = zeros(T,nMod)
     N = 2
     Orj0Nb!(Orj0,uvth2,j,N,nMod;rtol_OrjL=rtol_OrjL)
-    out[nj] = sum((nh .* vhth2.^N) .* (1 .+ Orj0)) - Mhst[nj]
+    out[nj] = sum_kbn((nh .* vhth2.^N) .* (1 .+ Orj0)) - Mhst[nj]
 
     for k in 2:nMod
         for s in 1:3
             nj += 1
             j += 2
-            N = (j) / 2 |> Int
+            N = j / 2 |> Int
             Orj0Nb!(Orj0,uvth2,j,N,nMod;rtol_OrjL=rtol_OrjL)
-            out[nj] = sum((nh .* vhth2.^N) .* (1 .+ Orj0)) - Mhst[nj]
+            out[nj] = sum_kbn((nh .* vhth2.^N) .* (1 .+ Orj0)) - Mhst[nj]
         end
     end
 end
 
 """
   Inputs:
-    J: = zeros(nMod,nMod)
+    JM: = zeros(nMod,nMod)
     x: = x(nMod)
     nh: = nai
     uh: = uai[1:nMod]
     vhth: = vthi[1:nMod]
 
   Outputs:
-    JacobCPEj0!(J, x, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,rtol_OrjL=rtol_OrjL)
+    JacobCPEj0!(JM, x, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,rtol_OrjL=rtol_OrjL)
 """
 
-# The Jacobian matrix: J = zeros(T,nMod-1,nMod-1)
+# The Jacobian matrix: JM = zeros(T,nMod-1,nMod-1)
 
 # nMode ≥ 2
-function JacobCPEj0!(J::AbstractArray{T,N2}, x::AbstractVector{T}, nMod::Int; 
+function JacobCPEj0!(JM::AbstractArray{T,N2}, x::AbstractVector{T}, nMod::Int; 
     nh::AbstractVector{T}=[0.1, 1.0], uh::AbstractVector{T}=[0.1, 1.0], 
     vhth::AbstractVector{T}=[0.1, 1.0], vhth2::AbstractVector{T}=[0.1, 1.0], 
     uvth2::AbstractVector{T}=[0.1, 1.0], rtol_OrjL::T=1e-10) where{T,N2}
 
-    fill!(J, 0.0)
+    fill!(JM, 0.0)
 
+    vec = 1:nMod
     nh[:] = x[1:3:end]
     uh[:] = x[2:3:end]
     vhth[:] = x[3:3:end]
@@ -147,15 +141,14 @@ function JacobCPEj0!(J::AbstractArray{T,N2}, x::AbstractVector{T}, nMod::Int;
     vhth2[:] = vhth.^2 
     uvth2[:] = (uh).^2 ./ vhth2              # uh .^ 2 ./ vhth .^ 2
 
-    vec = 1:nMod
     nj = 1
     j = 0
     # N = 0    
     for s in vec
         sn = 3(s - 1)
-        J[nj, sn+1] = 1.0
-        J[nj, sn+2] = 0.0
-        J[nj, sn+3] = 0.0
+        JM[nj, sn+1] = 1.0
+        JM[nj, sn+2] = 0.0
+        JM[nj, sn+3] = 0.0
     end
 
     nj = 2
@@ -165,9 +158,9 @@ function JacobCPEj0!(J::AbstractArray{T,N2}, x::AbstractVector{T}, nMod::Int;
         Orj02,Orj0 = Orj0N2Nb(uvth2[s],j,N;rtol_OrjL=rtol_OrjL)
         sn = 3(s - 1)
         O1 = 1 + Orj0
-        J[nj, sn+1] = vhth2[s] * O1
-        J[nj, sn+2] = (nh[s] * vhth2[s]) / uh[s] * Orj02
-        J[nj, sn+3] = (nh[s] * vhth2[s]) / vhth[s] * (j * O1 - Orj02)
+        JM[nj, sn+1] = vhth2[s] * O1
+        JM[nj, sn+2] = (nh[s] * vhth2[s]) / uh[s] * Orj02
+        JM[nj, sn+3] = (nh[s] * vhth2[s]) / vhth[s] * (j * O1 - Orj02)
     end
 
     nj += 1
@@ -178,9 +171,9 @@ function JacobCPEj0!(J::AbstractArray{T,N2}, x::AbstractVector{T}, nMod::Int;
         sn = 3(s - 1)
         TNuL1 = vhth2[s]^N
         O1 = 1 + Orj0
-        J[nj, sn+1] = TNuL1 * O1
-        J[nj, sn+2] = TNuL1 * nh[s] / uh[s] * Orj02
-        J[nj, sn+3] = TNuL1 * nh[s] / vhth[s] * (j * O1 - Orj02)
+        JM[nj, sn+1] = TNuL1 * O1
+        JM[nj, sn+2] = TNuL1 * nh[s] / uh[s] * Orj02
+        JM[nj, sn+3] = TNuL1 * nh[s] / vhth[s] * (j * O1 - Orj02)
     end
 
     for k in 2:nMod
@@ -193,9 +186,9 @@ function JacobCPEj0!(J::AbstractArray{T,N2}, x::AbstractVector{T}, nMod::Int;
                 sn = 3(s - 1)
                 TNuL1 = vhth2[s]^N
                 O1 = 1 + Orj0
-                J[nj, sn+1] = TNuL1 * O1
-                J[nj, sn+2] = TNuL1 * nh[s] / uh[s] * Orj02
-                J[nj, sn+3] = TNuL1 * nh[s] / vhth[s] * (j * O1 - Orj02)
+                JM[nj, sn+1] = TNuL1 * O1
+                JM[nj, sn+2] = TNuL1 * nh[s] / uh[s] * Orj02
+                JM[nj, sn+3] = TNuL1 * nh[s] / vhth[s] * (j * O1 - Orj02)
             end
         end
     end
