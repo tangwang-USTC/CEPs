@@ -144,16 +144,11 @@ function ddcMhj0C0D2V!(DMjL::AbstractVector{T},J::AbstractArray{T,N2},
         else
             arj00D2V!(DMjL,j,vthijL[4],VnrL,OrjL2,OrjL)
         end
-        # @show 1, DMjL
 
         # DMjL[:] += arjL|(r=1)
         JacobL0C0D2V!(J,DM1RjL,ar2L,ar4L,arLL,M1jL,uh1,vhth1)
         crj00D2V!(crjL,j,O1jL2,O1jL)          # c1jL
         DMjL[:] += vth1jL * (reshape((Vn1L .* crjL),1,3) * J)[:]
-        # @show 2, DMjL
-        # @show J
-        # @show cond(J)
-        # fyufugig
     end
 end
 

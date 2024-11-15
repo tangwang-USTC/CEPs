@@ -65,6 +65,8 @@ function JacobC0D2V!(J::AbstractArray{T,N},DM1RjL::AbstractVector{T},
   
     # DrLn1, DrLT1
     if is_norm_uhL
+      # uhLNL = uhLN^L
+      # J[2,1] *= uhLNL
       if L == 11
         J[1,:] = - (arLL + J[2,:] * M1jL[1] / uh1) * (uhLN / uh1)
         J[3,:] -= 0.8 * uh1 * J[2,:]
@@ -72,6 +74,7 @@ function JacobC0D2V!(J::AbstractArray{T,N},DM1RjL::AbstractVector{T},
         J[1,:] = - (arLL + L * J[2,:] * M1jL[1] / uh1) * (uhLN / uh1)^L
         J[3,:] -= 4 / (2L+T(3)) * uh1 * J[2,:]
       end
+      # J[3,1] *= uhLNL
     else
       if L == 11
         J[1,:] = - (arLL + J[2,:] * M1jL[1] / uh1) / uh1L
@@ -82,7 +85,12 @@ function JacobC0D2V!(J::AbstractArray{T,N},DM1RjL::AbstractVector{T},
       end
     end
     J[3,:] /= (2 * vhth1)
+    J[2:2,:] *= uhLN^L
   end
+  # @show is_norm_uhL, fmt2(uhLN), is_C, is_Jacobian
+  # @show fmt2.(J)
+  # @show Float64.(J)
+  # jhhggfg
 end
 
 function JacobL0C0D2V!(J::AbstractArray{T,N},DM1RjL::AbstractVector{T},

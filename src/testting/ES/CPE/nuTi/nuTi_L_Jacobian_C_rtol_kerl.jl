@@ -18,7 +18,7 @@ show_trace = false
 is_renorm = true
 # is_renorm = false
 is_norm_uhL = true
-is_norm_uhL = false
+# is_norm_uhL = false
 
 
 is_plot_MhjL = false
@@ -31,10 +31,12 @@ is_logplot_MhjL = true
 # 若非理想，则减小步长，重新寻优。
 # `nMod` 越大，优化的精度越低。
 
-datatype = BigFloat
-# datatype = Float64
-
-include(joinpath(pathroot,"Mathematics/consts_datatype.jl"))
+if is_change_datatype 
+        datatype = BigFloat
+        # datatype = Float64
+        
+        include(joinpath(pathroot,"Mathematics/consts_datatype.jl"))
+end
 
 if is_re_seed
         naiL = rand(datatype,nModL)
@@ -131,22 +133,25 @@ if is_optim
         
         is_show_Dc = false
         println("........................................................................")
-        is_C = false   
-        is_Jacobian = false
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_optim_kerl.jl"))
+
+        # is_C = false   
+
+        # is_Jacobian = false
+        # include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_optim_kerl.jl"))
         
-        is_Jacobian = true
-        # is_show_Dc = true
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_optim_kerl.jl"))
+        # is_Jacobian = true
+        # # is_show_Dc = true
+        # include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_optim_kerl.jl"))
         
         
         is_C = true 
-        is_show_Dc = true
-        is_Jacobian = true
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_optim_kerl.jl"))
         
         is_show_Dc = false
         is_Jacobian = false
         include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_optim_kerl.jl"))
+        
+        # is_show_Dc = true
+        # is_Jacobian = true
+        # include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_optim_kerl.jl"))
         
 end

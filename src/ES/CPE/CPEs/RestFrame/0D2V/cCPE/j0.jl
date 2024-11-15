@@ -284,8 +284,6 @@ function JacobCPEj0C!(JM::AbstractArray{T,N2}, x::AbstractVector{T}, nMod::Int;
           end
       end
   end
-  # @show JM
-  # @show cond(JM)
 end
      
 # nMod = 2
@@ -367,8 +365,6 @@ function JacobCPEj0C!(JM::AbstractArray{T,N2}, x::AbstractVector{T};
              M1jL,crjL,arLL,ar2L,ar4L,O1jL2[nj],O1jL[nj],OrjL2,OrjL,OrnL2,OrnL,j)
       JM[nj, sn] = DMjL
   end
-  # @show JM
-  # @show cond(JM)
 end
 
         

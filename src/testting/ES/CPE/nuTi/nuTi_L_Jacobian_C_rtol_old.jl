@@ -8,8 +8,10 @@ include(joinpath(pathroot,"src/ES/ESs.jl"))
 include(joinpath(pathroot,"test/run_collisions/algorithm/modules.jl"))
 include(joinpath(pathroot,"test/run_collisions/paras_alg_optim.jl"))
 
+is_change_datatype = false
+
 rtol_OrjL = 1e-14
-RDnuT = -1e-8
+RDnuT = 1e-8
 
 # is_re_seed = true
 is_re_seed = false

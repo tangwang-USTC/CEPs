@@ -104,12 +104,6 @@ function CPEj0C!(out::AbstractVector{T}, x::AbstractVector{T}, nMod::Int;
       end
     end
 end
-  
-# @show nh, uh, vhth
-# @show naiLt0, uaiLt0, vthiLt0
-# @show nh ./ naiLt0 .- 1
-# @show uh ./ uaiLt0 .- 1
-# @show vhth ./ vthiLt0 .- 1
 
 # nMod = 2
 function CPEj0C!(out::AbstractVector{T}, x::AbstractVector{T};
@@ -289,8 +283,6 @@ function JacobCPEj0C!(JM::AbstractArray{T,N2}, x::AbstractVector{T}, nMod::Int;
         end
     end
   end
-  # @show JM
-  # @show cond(JM)
 end
      
 
