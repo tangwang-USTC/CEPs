@@ -41,7 +41,7 @@ function JacobC0D2V!(J::AbstractArray{T,N},DM1RjL::AbstractVector{T},
   uh1::T,vhth1::T,uh1L::T,uhLN::T,L::Int;is_norm_uhL::Bool=true) where {T <: Real, N}
 
   # @show is_norm_uhL, uhLN
-  if L == 20
+  if L == 0
     JacobL0C0D2V!(J,DM1RjL,ar2L,ar4L,arLL,M1jL,uh1,vhth1)
   else
     # j = L + 2
@@ -50,7 +50,7 @@ function JacobC0D2V!(J::AbstractArray{T,N},DM1RjL::AbstractVector{T},
     J[3,:] = DM1RjL / M1jL[1]
   
     # DrLu1
-    if L == 11
+    if L == 111
       # CDx = 2.5^2 * 3.5 / (4 * uh1^3)
       CDx = 5.46875 / uh1^3
     else
@@ -67,7 +67,7 @@ function JacobC0D2V!(J::AbstractArray{T,N},DM1RjL::AbstractVector{T},
     if is_norm_uhL
       # uhLNL = uhLN^L
       # J[2,1] *= uhLNL
-      if L == 11
+      if L == 111
         J[1,:] = - (arLL + J[2,:] * M1jL[1] / uh1) * (uhLN / uh1)
         J[3,:] -= 0.8 * uh1 * J[2,:]
       else
@@ -76,7 +76,7 @@ function JacobC0D2V!(J::AbstractArray{T,N},DM1RjL::AbstractVector{T},
       end
       # J[3,1] *= uhLNL
     else
-      if L == 11
+      if L == 111
         J[1,:] = - (arLL + J[2,:] * M1jL[1] / uh1) / uh1L
         J[3,:] -= 0.8 * uh1 * J[2,:]
       else

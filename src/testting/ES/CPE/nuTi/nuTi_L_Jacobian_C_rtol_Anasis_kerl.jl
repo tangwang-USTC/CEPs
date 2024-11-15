@@ -29,6 +29,18 @@ is_logplot_MhjL = true
 # 若非理想，则减小步长，重新寻优。
 # `nMod` 越大，优化的精度越低。
 
+# is_renorm = true
+# datatype = Float64
+# LeastSquaresOptim.jl -> QR
+# `[is_C, is_uhLN, is_J] = [0, `1`, X]`, 平权：任意阶 `L`, 不同的 `j-L` 平权, 误差近似均分；(归一化)
+#                                             不同的 `j-L`, `L` 也整体 平权；
+# `[is_C, is_uhLN, is_J] = [0, `0`, X]`, 天权：任意阶 `L`,`j-L` 越大，误差越小；即偏向 高阶矩；(SHE 的收敛性)
+#                                             不同的 `j-L`, 误差随 `L` 振荡；
+# `[is_C, is_uhLN, is_J] = [`1`, 1, 1]`, 地权: 任意阶 `L`,`j-L` 越小，误差单调降低；即偏向 低阶矩；满足守恒性；
+#                                             不同的 `j-L`, 误差随 `L` 有些微波动；但相对稳定。
+# `RDnuT` 逐渐增大，各权皆有削弱，但 地权 较为稳健， 天权 易崩。
+# （现在程序有瑕疵，JV，而且未引用不等式约束）
+
 if is_change_datatype 
         datatype = BigFloat
         datatype = Float64
@@ -128,27 +140,7 @@ if is_optim
         atol_Mh = 1e-15 |> datatype
         rtol_Mh = 1e-15 |> datatype
         
-        is_show_Dc = false
         println("........................................................................")
-
-        # is_C = false   
-
-        # is_Jacobian = false
-        # include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_optim_kerl.jl"))
-        
-        # is_Jacobian = true
-        # # is_show_Dc = true
-        # include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_optim_kerl.jl"))
-        
-        
-        is_C = true 
-        
-        is_show_Dc = false
-        is_Jacobian = false
         include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_optim_kerl.jl"))
-        
-        # is_show_Dc = true
-        # is_Jacobian = true
-        # include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_optim_kerl.jl"))
         
 end

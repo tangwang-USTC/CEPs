@@ -17,7 +17,7 @@ function arjL0D2V!(arjL::AbstractVector{T}, j::Int, L::Int,
   if j == L
     arLL0D2V!(arjL,L,uhL,VnrL)
   else
-    if L == 20
+    if L == 0
       arj00D2V!(arjL,j,vhthjL,VnrL,OrnL2,OrnL)
     else
       crjL0D2V!(arjL,j,L,OrnL2,OrnL)     # crjL
@@ -31,7 +31,7 @@ function crjL0D2V!(crjL::AbstractVector{T}, j::Int, L::Int, OrnL2::T, OrnL::T) w
   if j == L
     crLL0D2V!(crjL,L)
   else
-    if L == 20
+    if L == 0
       crj00D2V!(crjL,j,OrnL2,OrnL)
     else
       crjL[1] = (1 + OrnL) 
@@ -41,7 +41,7 @@ function crjL0D2V!(crjL::AbstractVector{T}, j::Int, L::Int, OrnL2::T, OrnL::T) w
 end
 
 """
-  When `L == 20`
+  When `L == 0`
 
   Inputs:
   Outputs:
@@ -79,7 +79,7 @@ end
 
 function arLL0D2V!(arjL::AbstractVector{T}, L::Int, uhL::T, VnrL::AbstractVector{T}) where {T <: Real}
 
-  if L == 20
+  if L == 0
     ar000D2V!(arjL)
   else
     arjL[:] = [1, L, 0]     # crjL
@@ -88,7 +88,7 @@ function arLL0D2V!(arjL::AbstractVector{T}, L::Int, uhL::T, VnrL::AbstractVector
 end
 function crLL0D2V!(crjL::AbstractVector{T}, L::Int) where {T <: Real}
   
-  if L == 20
+  if L == 0
     cr000D2V!(crjL)
   else
     crjL[:] = [1, L, 0]     # crjL

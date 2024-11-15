@@ -50,7 +50,7 @@ function ddcMhjLC0D2V!(DMjL::AbstractVector{T},J::AbstractArray{T,N2},
         ddcMhLLC0D2V!(DMjL,J,DM1RjL,uh1,vhth1,uh1L,uaiL,vthijL,Vn1L,VnrL,uhLN,
                         M1jL,crjL,arLL,ar2L,ar4L,OrnL2,OrnL,L;is_norm_uhL=is_norm_uhL)
     else
-        if L == 20
+        if L == 0
             ddcMhj0C0D2V!(DMjL,J,DM1RjL,uh1,vhth1,vth1jL,vthijL,Vn1L,VnrL,
                         M1jL,crjL,arLL,ar2L,ar4L,O1jL2,O1jL,OrjL2,OrjL,OrnL2,OrnL,j)
         else
@@ -62,7 +62,7 @@ function ddcMhjLC0D2V!(DMjL::AbstractVector{T},J::AbstractArray{T,N2},
             arjL0D2V!(ar4L,jL,L,uaiL,vthijL[3],VnrL,OrnL2[3],OrnL[3])
 
             # DMjL[:] = arjL 
-            if j - L == 20
+            if j - L == 0
                 DMjL[:] = arLL
             elseif j - L == 2
                 DMjL[:] = ar2L
@@ -87,7 +87,7 @@ function ddcMhLLC0D2V!(DMjL::AbstractVector{T},J::AbstractArray{T,N2},
     arLL::AbstractVector{T},ar2L::AbstractVector{T},ar4L::AbstractVector{T},
     OrnL2::AbstractVector{T},OrnL::AbstractVector{T},L::Int;is_norm_uhL::Bool=true) where {T <: Real,N2}
   
-    if L == 20
+    if L == 0
         ddcMh00C0D2V!(DMjL,J,DM1RjL,uh1,vhth1,vthijL,Vn1L,VnrL,
                     M1jL,crjL,arLL,ar2L,ar4L,OrnL2,OrnL)
     else
@@ -109,7 +109,7 @@ function ddcMhLLC0D2V!(DMjL::AbstractVector{T},J::AbstractArray{T,N2},
 end
 
 """
-  When `L == 20`
+  When `L == 0`
 
   Outputs:
     ddcMhj0C0D2V!(DMjL,J,DM1RjL,uh1,vhth1,vth1jL,vthijL,VnrL,
@@ -181,7 +181,7 @@ function vthijLs(vthi::T,j::Int,L::Int) where {T <: Real}
     if j == L
         return 1.0 |> T
     else
-        if L == 20
+        if L == 0
             return vthi^j
         else
             return vthi^(j-L)

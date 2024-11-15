@@ -32,11 +32,14 @@ if 1 == 1
                     p_tol=p_tol,f_tol=f_tol,g_tol=g_tol,NL_solve_method=NL_solve_method,
                     Nspan_optim_nuTi=Nspan_optim_nuTi)
     end
-    
+    @show L
+    if is_norm_uhL
+        @show fmtf2.([uhLN,uhLN^L])
+    end
     if is_converged
-            printstyled("((L,is_norm_uhL, niter), xssr,factor)=",((L,is_norm_uhL, niter), fmt2(xssr),factor);color=:green)
+            printstyled("((is_norm_uhL, niter), xssr,factor)=",((is_norm_uhL, niter), fmt2(xssr),factor);color=:green)
     else
-            printstyled("((L,is_norm_uhL, niter), xssr,factor)=",((L,is_norm_uhL, niter), fmt2(xssr),factor);color=:red)
+            printstyled("((is_norm_uhL, niter), xssr,factor)=",((is_norm_uhL, niter), fmt2(xssr),factor);color=:red)
     end
     # if is_converged
         naio = xfit[1:3:end]
@@ -50,16 +53,26 @@ if 1 == 1
                 is_norm_uhL=is_norm_uhL,rtol_OrjL=rtol_OrjL,mathtype=mathtype)
         
         RDn = Float64.(sum_kbn(naio) - 1.0)
-        RDTT = Float64.(sum_kbn(naio .* uaio .^2) / sum_kbn(naiL .* uaiL .^2) - 1.0)
+        RDTT = Float64.(sum_kbn(naio .* vthio .^2) / sum_kbn(naiL .* vthiL .^2) - 1.0)
+        RDEk = Float64.(sum_kbn(naio .* uaio .^2) / sum_kbn(naiL .* uaiL .^2) - 1.0)
         RDMs = Float64.(MhjLo[1:3nModL] ./ MhjL[1:3nModL] .- 1)
     # end
     println()
     @show is_C, is_re_seed, is_Jacobian, RDnuT
     @show fmt2.(RDMs)
+    if is_anasys_L
+        if iseven(L)
+            inLp = L / 2 + 1 |> Int
+        else
+            inLp = (L - 1) / 2 + 1 |> Int
+        end
+        errMhjL[:,inLp] = RDMs
+        errnuTM[inLp,:]  = [RDn, RDTT, RDEk, norm(RDMs)]
+    end
     if norm(RDMs) ≤ 1e-10
-            printstyled("(RDn,RDTT,RDMs)=",(fmt2(RDn),fmt2(RDTT),fmt2(norm(RDMs)));color=:blue)
+            printstyled("(RDn,RDTT,RDEk,RDMs)=",(fmt2(RDn),fmt2(RDTT),fmt2(RDEk),fmt2(norm(RDMs)));color=:blue)
     else
-            printstyled("(RDn,RDTT,RDMs)=",(fmt2(RDn),fmt2(RDTT),fmt2(norm(RDMs)));color=:red)
+            printstyled("(RDn,RDTT,RDEk,RDMs)=",(fmt2(RDn),fmt2(RDTT),fmt2(RDEk),fmt2(norm(RDMs)));color=:red)
     end
     println()
     # @show fmt2.(naio ./ naiL .- 1)

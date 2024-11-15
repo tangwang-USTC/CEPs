@@ -15,9 +15,9 @@ function uhLNorm(nai::AbstractVector{T},uai::AbstractVector{T},L::Int) where{T}
         return sum_kbn(nai .* (uai).^2)^0.5
     else
         if iseven(L)
-            return sum_kbn(nai .* (uai).^L)^(big(1)/L)
+            return sum_kbn(nai .* (uai).^L)^(T(1)/L)
         else
-            return sum_kbn(nai .* abs.(uai).^L)^(big(1)/L)
+            return sum_kbn(nai .* abs.(uai).^L)^(T(1)/L)
         end
     end
 end

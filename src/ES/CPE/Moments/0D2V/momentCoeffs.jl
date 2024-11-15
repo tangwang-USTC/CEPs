@@ -70,7 +70,7 @@ function CMjL(j::T) where {T<:Real}
     elseif j == 3
         return 4 / sqrtpi |> T
     else
-        return 2 / sqrtpi * gamma(1.5 + j/2)
+        return 2 / sqrtpi * gamma(1.5 + j/2) |> T
         #   if iseven(j)
         #       return prod(3:2:j+1) / 2^(j/2)
         #       # if j ≤ 30
@@ -111,10 +111,10 @@ end
 function CjLk(j::T,k::T) where {T<:Real}
 
     if j == 0
-        return (1 / gamma(1 - k)) * ((sqrtpi / 2) / gamma(1.5 + k)) / gamma(1 + k)
+        return (1 / gamma(1 - k)) * ((sqrtpi / 2) / gamma(1.5 + k)) / gamma(1 + k) |> T
     else
         j2 = j / 2 + 1
-        return (gamma(j2) / gamma(j2 - k)) * ((sqrtpi / 2) / gamma(1.5 + k)) / gamma(1 + k)
+        return (gamma(j2) / gamma(j2 - k)) * ((sqrtpi / 2) / gamma(1.5 + k)) / gamma(1 + k) |> T
     end
 end
 
