@@ -30,9 +30,6 @@ is_logplot_MhjL = true
 # `nMod` 越大，优化的精度越低。
 
 if is_change_datatype 
-        datatype = BigFloat
-        datatype = Float64
-        
         include(joinpath(pathroot,"Mathematics/consts_datatype.jl"))
 end
 
@@ -134,21 +131,21 @@ if is_optim
         # is_C = false   
 
         # is_Jacobian = false
-        # include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_optim_kerl.jl"))
+        # include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_optim_kerl.jl"))
         
         # is_Jacobian = true
         # # is_show_Dc = true
-        # include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_optim_kerl.jl"))
+        # include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_optim_kerl.jl"))
         
         
         is_C = true 
         
         is_show_Dc = false
         is_Jacobian = false
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_optim_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_optim_kerl.jl"))
         
         # is_show_Dc = true
         # is_Jacobian = true
-        # include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_optim_kerl.jl"))
+        # include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_optim_kerl.jl"))
         
 end

@@ -4,12 +4,20 @@ using Plots,DataFrames,CSV,Format,OhMyREPL
 pathroot = "C:/Users/Administrator/.julia/pkgGithub/CPEs"
 pathdatas = "D:/atom/datas/2024/CEPs"
 
+datatype = BigFloat
+datatype = Float64
+
 include(joinpath(pathroot,"Mathematics/maths.jl"))
 include(joinpath(pathroot,"src/ES/ESs.jl"))
 include(joinpath(pathroot,"test/run_collisions/algorithm/modules.jl"))
 include(joinpath(pathroot,"test/run_collisions/paras_alg_optim.jl"))
 
+
+datatype = BigFloat
+datatype = Float64
+# is_change_datatype = true
 is_change_datatype = false
+
 rtol_OrjL = 1e-14
 RDnuT = -1e-7
 
@@ -22,7 +30,7 @@ is_norm_uhL = true
 is_norm_uhL = false
         
     is_C = true 
-    # is_C = false 
+    is_C = false 
         
     is_Jacobian = true
     # is_Jacobian = false
@@ -59,39 +67,39 @@ if is_anasys_L
     if 1 == 1
 
         L = 0
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
         
         is_re_seed = false
         L = 2
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
         L = 4
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
         L = 6
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
         L = 8
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
         L = 10
         is_show_nuTi = true
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
         L = 12
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
         L = 14
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
         L = 16
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
         L = 18
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
         L = 20
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
         L = 22
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
         L = 24
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
         L = 26
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
         L = 28
         is_show_nuTi = true
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_Anasis_kerl.jl"))
         
     end
     if is_anasys_L
@@ -131,39 +139,39 @@ else
     if 1 == 1
 
         L = 0
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_kerl.jl"))
         
         is_re_seed = false
         L = 2
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_kerl.jl"))
         L = 4
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_kerl.jl"))
         L = 6
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_kerl.jl"))
         L = 8
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_kerl.jl"))
         L = 10
         is_show_nuTi = true
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_kerl.jl"))
         L = 12
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_kerl.jl"))
         L = 14
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_kerl.jl"))
         L = 16
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_kerl.jl"))
         L = 18
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_kerl.jl"))
         L = 20
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_kerl.jl"))
         L = 22
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_kerl.jl"))
         L = 24
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_kerl.jl"))
         L = 26
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_kerl.jl"))
         L = 28
         is_show_nuTi = true
-        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/nuTi_L_Jacobian_C_rtol_kerl.jl"))
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_kerl.jl"))
         
     end
 end
