@@ -41,5 +41,5 @@ function ccsj0!(nh::AbstractVector{T},uh::AbstractVector{T},vhth::AbstractVector
     else
         nh[nMod] = Mhr0
     end
-    vhth[nMod] = ((Mh2 / Mhr0) - 2/3 * uhr2)^0.5
+    vhth[nMod] = ((Mh2 / Mhr0) - T(2)/3 * uhr2)^0.5
 end

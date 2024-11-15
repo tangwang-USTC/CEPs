@@ -88,7 +88,7 @@ end
 function MhrLL0D2V(L::Int, uhL::T) where {T <: Real}
   
   if L == 0
-    return 1.0
+    return 1.0 |> T
   else
     return uhL
   end

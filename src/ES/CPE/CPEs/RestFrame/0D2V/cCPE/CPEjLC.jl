@@ -35,29 +35,29 @@
     crjL,arLL,ar2L,ar4L = zeros(T,3),zeros(T,3),zeros(T,3),zeros(T,3)
 
   Outputs:
-    CPEjLC!(out, x, L, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,M1jL=M1jL,
-                rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
+    CPEjLC!(out, x, uhLN, L, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,M1jL=M1jL,
+                is_norm_uhL=is_norm_uhL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
 
 """
 
 # nMod ≥ 3
-function CPEjLC!(out::AbstractVector{T}, x::AbstractVector{T}, L::Int, nMod::Int;
+function CPEjLC!(out::AbstractVector{T}, x::AbstractVector{T}, uhLN::T, L::Int, nMod::Int;
     nh::AbstractVector{T}=[0.1, 1.0], uh::AbstractVector{T}=[0.1, 1.0], 
     vhth::AbstractVector{T}=[0.1, 1.0], vhth2::AbstractVector{T}=[0.1, 1.0], 
     uvth2::AbstractVector{T}=[0.1, 1.0], Mhst::AbstractVector{T}=[0.1, 1.0],
     M1jL::AbstractVector{T}=[1.0,1.0,1.0],
-    rtol_OrjL::T=1e-10,atol_Mh::T=1e-10,rtol_Mh::T=1e-10) where{T}
+    is_norm_uhL::Bool=true,rtol_OrjL::T=1e-10,atol_Mh::T=1e-10,rtol_Mh::T=1e-10) where{T}
 
-    if L == 0
+    if L == 20
         CPEj0C!(out, x, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,
                 M1jL=M1jL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
     elseif L == 11
-        CPEj1C!(out, x, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,
-                M1jL=M1jL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
+        CPEj1C!(out, x, uhLN, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,M1jL=M1jL,
+                is_norm_uhL=is_norm_uhL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
     else 
         if nMod == 2
-            CPEjLC!(out, x, L;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,
-                    M1jL=M1jL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
+            CPEjLC!(out, x, uhLN, L;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,M1jL=M1jL,
+                    is_norm_uhL=is_norm_uhL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
         else
             vec = 1:nMod-1
             nh[vec] = x[1:3:end]
@@ -67,7 +67,12 @@ function CPEjLC!(out::AbstractVector{T}, x::AbstractVector{T}, L::Int, nMod::Int
             vhth2[vec] = vhth[vec].^2 
             uvth2[vec] = (uh[vec]).^2 ./ vhth2[vec]              # uh .^ 2 ./ vhth .^ 2
         
-            uhL = uh.^L
+            uhL = ones(T,nMod)
+            if is_norm_uhL
+                uhL[vec] = (uh[vec] / uhLN).^L
+            else
+                uhL[vec] = uh[vec].^L
+            end
             
             # nMod = 1
             nj = 1
@@ -89,7 +94,9 @@ function CPEjLC!(out::AbstractVector{T}, x::AbstractVector{T}, L::Int, nMod::Int
         
             # uhr4
             uhr2 = M1jL[2]^2 - M1jL[3]
+            (uhr2 ≥ 0) || error("`uhr4` must be a positive value",fmt2(uhr2))
             uhr2 = (L+1.5) * ((L+2.5) * uhr2)^0.5
+            (uhr2 ≥ 0) || error("`uhr2` must be a positive value",fmt2(uhr2))
         
             # uh[nMod]
             if iseven(L)
@@ -97,37 +104,70 @@ function CPEjLC!(out::AbstractVector{T}, x::AbstractVector{T}, L::Int, nMod::Int
             else
                 uh[nMod] = sign(M1jL[1]) * (uhr2)^0.5
             end
-            # nh[nMod]
-            if abs(M1jL[1]) ≤ rtol_Mh
-                if abs(uh[nMod]) ≤ rtol_Mh
-                    nh[nMod] = 0.0
-                else
-                    if iseven(L)
-                        nh[nMod] = M1jL[1] / uhr2 ^(L/2)
+            # nh[nMod] * (uhLN^2 / uhr2) ^(L/2)
+            if is_norm_uhL
+                if abs(M1jL[1]) ≤ rtol_Mh
+                    if abs(uh[nMod]) ≤ rtol_Mh
+                        nh[nMod] = 0.0
                     else
-                        nh[nMod] = sign(M1jL[1]) * M1jL[1] / uhr2 ^(L/2)
+                        if iseven(L)
+                            nh[nMod] = M1jL[1] * (uhLN^2 / uhr2) ^(L/2)
+                        else
+                            nh[nMod] = sign(M1jL[1]) * M1jL[1] * (uhLN^2 / uhr2) ^(L/2)
+                        end
+                    end
+                else
+                    if abs(uh[nMod]) ≤ rtol_Mh
+                        @error(`Error: nhr ∝ MhrjL / uhr^L. Both MhrjL and uhr are almost zero!! L=`,L)
+                        if iseven(L)
+                            nh[nMod] = M1jL[1] * (uhLN^2 / uhr2) ^(L/2)
+                        else
+                            nh[nMod] = sign(M1jL[1]) * M1jL[1] * (uhLN^2 / uhr2) ^(L/2)
+                        end
+                    else
+                        if iseven(L)
+                            nh[nMod] = M1jL[1] * (uhLN^2 / uhr2) ^(L/2)
+                        else
+                            nh[nMod] = sign(M1jL[1]) * M1jL[1] * (uhLN^2 / uhr2) ^(L/2)
+                        end
                     end
                 end
             else
-                if abs(uh[nMod]) ≤ rtol_Mh
-                    @error(`Error: nhr ∝ MhrjL / uhr^L. Both MhrjL and uhr are almost zero!! L=`,L)
-                    if iseven(L)
-                        nh[nMod] = M1jL[1] / uhr2 ^(L/2)
+                if abs(M1jL[1]) ≤ rtol_Mh
+                    if abs(uh[nMod]) ≤ rtol_Mh
+                        nh[nMod] = 0.0
                     else
-                        nh[nMod] = sign(M1jL[1]) * M1jL[1] / uhr2 ^(L/2)
+                        if iseven(L)
+                            nh[nMod] = M1jL[1] / uhr2 ^(L/2)
+                        else
+                            nh[nMod] = sign(M1jL[1]) * M1jL[1] / uhr2 ^(L/2)
+                        end
                     end
                 else
-                    if iseven(L)
-                        nh[nMod] = M1jL[1] / uhr2 ^(L/2)
+                    if abs(uh[nMod]) ≤ rtol_Mh
+                        @error(`Error: nhr ∝ MhrjL / uhr^L. Both MhrjL and uhr are almost zero!! L=`,L)
+                        if iseven(L)
+                            nh[nMod] = M1jL[1] / uhr2 ^(L/2)
+                        else
+                            nh[nMod] = sign(M1jL[1]) * M1jL[1] / uhr2 ^(L/2)
+                        end
                     else
-                        nh[nMod] = sign(M1jL[1]) * M1jL[1] / uhr2 ^(L/2)
+                        if iseven(L)
+                            nh[nMod] = M1jL[1] / uhr2 ^(L/2)
+                        else
+                            nh[nMod] = sign(M1jL[1]) * M1jL[1] / uhr2 ^(L/2)
+                        end
                     end
                 end
             end
-            vhth2[nMod] = M1jL[2] - 1/(L+1.5) * uhr2
+            vhth2[nMod] = M1jL[2] - T(1)/(L+1.5) * uhr2
+            (vhth2[nMod] ≥ 0) || error("`vhth2` must be a positive value",fmt2(vhth2[nMod]))
             vhth[nMod] = √(vhth2[nMod])
             uvth2[nMod] = uhr2 ./ vhth2[nMod]
             uhL[nMod] = uhr2^(L/2)
+
+            @show fmt2.([nh[nMod],uh[nMod],vhth[nMod]])
+            isnan(nh[nMod]) == false || error("`nMod` must be a positive value belonging to `[0,1]`",fmt2(nh[nMod]))
         
             for k in 1:nMod-1
                 for s in 1:3
@@ -143,19 +183,19 @@ function CPEjLC!(out::AbstractVector{T}, x::AbstractVector{T}, L::Int, nMod::Int
 end
 
 # nMod = 2
-function CPEjLC!(out::AbstractVector{T}, x::AbstractVector{T}, L::Int;
+function CPEjLC!(out::AbstractVector{T}, x::AbstractVector{T}, uhLN::T, L::Int;
     nh::AbstractVector{T}=[0.1, 1.0], uh::AbstractVector{T}=[0.1, 1.0], 
     vhth::AbstractVector{T}=[0.1, 1.0], vhth2::AbstractVector{T}=[0.1, 1.0], 
     uvth2::AbstractVector{T}=[0.1, 1.0], Mhst::AbstractVector{T}=[0.1, 1.0],
     M1jL::AbstractVector{T}=[1.0,1.0,1.0],
-    rtol_OrjL::T=1e-10,atol_Mh::T=1e-10,rtol_Mh::T=1e-10) where{T}
+    is_norm_uhL::Bool=true,rtol_OrjL::T=1e-10,atol_Mh::T=1e-10,rtol_Mh::T=1e-10) where{T}
 
-    if L == 0
+    if L == 20
         CPEj0C!(out, x;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,
                 M1jL=M1jL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
     elseif L == 11
-        CPEj1C!(out, x;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,
-                M1jL=M1jL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
+        CPEj1C!(out, x, uhLN;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,M1jL=M1jL,
+                is_norm_uhL=is_norm_uhL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
     else 
         vec = 1
         nh[vec] = x[1]
@@ -166,7 +206,11 @@ function CPEjLC!(out::AbstractVector{T}, x::AbstractVector{T}, L::Int;
         uvth2[vec] = (uh[vec])^2 / vhth2[vec]              # uh .^ 2 ./ vhth .^ 2
     
         uhL = ones(T,2)
-        uhL[vec] = uh[vec]^L
+        if is_norm_uhL
+            uhL[vec] = (uh[vec] / uhLN).^L
+        else
+            uhL[vec] = uh[vec]^L
+        end
         
         # nMod = 1
         nj = 1
@@ -196,34 +240,64 @@ function CPEjLC!(out::AbstractVector{T}, x::AbstractVector{T}, L::Int;
         else
             uh[2] = sign(M1jL[1]) * (uhr2)^0.5
         end
-        # nh[nMod]
-        if abs(M1jL[1]) ≤ rtol_Mh
-            if abs(uh[2]) ≤ rtol_Mh
-                nh[2] = 0.0
-            else
-                if iseven(L)
-                    nh[2] = M1jL[1] / uhr2 ^(L/2)
+        # nh[nMod] * (uhLN^2 / uhr2) ^(L/2)
+        if is_norm_uhL
+            if abs(M1jL[1]) ≤ rtol_Mh
+                if abs(uh[2]) ≤ rtol_Mh
+                    nh[2] = 0.0
+                    erffffff
                 else
-                    nh[2] = sign(M1jL[1]) * M1jL[1] / uhr2 ^(L/2)
+                    if iseven(L)
+                        nh[2] = M1jL[1] * (uhLN^2 / uhr2) ^(L/2)
+                    else
+                        nh[2] = sign(M1jL[1]) * M1jL[1] * (uhLN^2 / uhr2) ^(L/2)
+                    end
+                end
+            else
+                if abs(uh[2]) ≤ rtol_Mh
+                    @error(`Error: nhr ∝ MhrjL / uhr^L. Both MhrjL and uhr are almost zero!! L=`,L)
+                    if iseven(L)
+                        nh[2] = M1jL[1] * (uhLN^2 / uhr2) ^(L/2)
+                    else
+                        nh[2] = sign(M1jL[1]) * M1jL[1] * (uhLN^2 / uhr2) ^(L/2)
+                    end
+                else
+                    if iseven(L)
+                        nh[2] = M1jL[1] * (uhLN^2 / uhr2) ^(L/2)
+                    else
+                        nh[2] = sign(M1jL[1]) * M1jL[1] * (uhLN^2 / uhr2) ^(L/2)
+                    end
                 end
             end
         else
-            if abs(uh[2]) ≤ rtol_Mh
-                @error(`Error: nhr ∝ MhrjL / uhr^L. Both MhrjL and uhr are almost zero!! L=`,L)
-                if iseven(L)
-                    nh[2] = M1jL[1] / uhr2 ^(L/2)
+            if abs(M1jL[1]) ≤ rtol_Mh
+                if abs(uh[2]) ≤ rtol_Mh
+                    nh[2] = 0.0
                 else
-                    nh[2] = sign(M1jL[1]) * M1jL[1] / uhr2 ^(L/2)
+                    if iseven(L)
+                        nh[2] = M1jL[1] / uhr2 ^(L/2)
+                    else
+                        nh[2] = sign(M1jL[1]) * M1jL[1] / uhr2 ^(L/2)
+                    end
                 end
             else
-                if iseven(L)
-                    nh[2] = M1jL[1] / uhr2 ^(L/2)
+                if abs(uh[2]) ≤ rtol_Mh
+                    @error(`Error: nhr ∝ MhrjL / uhr^L. Both MhrjL and uhr are almost zero!! L=`,L)
+                    if iseven(L)
+                        nh[2] = M1jL[1] / uhr2 ^(L/2)
+                    else
+                        nh[2] = sign(M1jL[1]) * M1jL[1] / uhr2 ^(L/2)
+                    end
                 else
-                    nh[2] = sign(M1jL[1]) * M1jL[1] / uhr2 ^(L/2)
+                    if iseven(L)
+                        nh[2] = M1jL[1] / uhr2 ^(L/2)
+                    else
+                        nh[2] = sign(M1jL[1]) * M1jL[1] / uhr2 ^(L/2)
+                    end
                 end
             end
         end
-        vhth2[2] = M1jL[2] - 1/(L+1.5) * uhr2
+        vhth2[2] = M1jL[2] - T(1)/(T(L)+1.5) * uhr2
         vhth[2] = √(vhth2[2])
         uvth2[2] = uhr2 / vhth2[2]
         uhL[2] = uhr2^(L/2)
@@ -268,16 +342,16 @@ end
     OrnL = zeros(T,3)                  # = [Or0L, Or2L, Or4L]
 
   Outputs:
-    JacobCPEjLC!(JM, x, L, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
+    JacobCPEjLC!(JM, x, uhLN, L, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
                 DMjL=DMjL,J=J,DM1RjL=DM1RjL,vth1jL=vth1jL,vthijL=vthijL,Vn1L=Vn1L,VnrL=VnrL,M1jL=M1jL,
-                crjL=crjL,arLL=arLL,ar2L=ar2L,ar4L=ar4L,O1jL2=O1jL2,O1jL=O1jL,
-                OrnL2=OrnL2,OrnL=OrnL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
+                crjL=crjL,arLL=arLL,ar2L=ar2L,ar4L=ar4L,O1jL2=O1jL2,O1jL=O1jL,OrnL2=OrnL2,OrnL=OrnL,
+                is_norm_uhL=is_norm_uhL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
 """
 
 # The Jacobian matrix: JM
 
 # nMod ≥ 3
-function JacobCPEjLC!(JM::AbstractArray{T,N2}, x::AbstractVector{T}, L::Int, nMod::Int; 
+function JacobCPEjLC!(JM::AbstractArray{T,N2}, x::AbstractVector{T}, uhLN::T, L::Int, nMod::Int; 
     nh::AbstractVector{T}=[0.1, 1.0], uh::AbstractVector{T}=[0.1, 1.0], 
     vhth::AbstractVector{T}=[0.1, 1.0], vhth2::AbstractVector{T}=[0.1, 1.0], 
     uvth2::AbstractVector{T}=[0.1, 1.0],DMjL::AbstractVector{T}=[0.0,0.0,0.0],
@@ -288,24 +362,24 @@ function JacobCPEjLC!(JM::AbstractArray{T,N2}, x::AbstractVector{T}, L::Int, nMo
     ar2L::AbstractVector{T}=[0.0,0.0,0.0],ar4L::AbstractVector{T}=[0.0,0.0,0.0],
     O1jL2::AbstractVector{T}=[0.0,0.0,0.0],O1jL::AbstractVector{T}=[0.0,0.0,0.0],
     OrnL2::AbstractVector{T}=[0.0,0.0,0.0],OrnL::AbstractVector{T}=[0.0,0.0,0.0],
-    rtol_OrjL::T=1e-10,atol_Mh::T=1e-10,rtol_Mh::T=1e-10) where{T,N2}
+    is_norm_uhL::Bool=true,rtol_OrjL::T=1e-10,atol_Mh::T=1e-10,rtol_Mh::T=1e-10) where{T,N2}
 
-    if L == 0
+    if L == 20
         JacobCPEj0C!(JM, x, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
                 DMjL=DMjL,J=J,DM1RjL=DM1RjL,vth1jL=vth1jL,vthijL=vthijL,Vn1L=Vn1L,VnrL=VnrL,M1jL=M1jL,
                 crjL=crjL,arLL=arLL,ar2L=ar2L,ar4L=ar4L,O1jL2=O1jL2,O1jL=O1jL,
                 OrnL2=OrnL2,OrnL=OrnL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
     elseif L == 11
-        JacobCPEj1C!(JM, x, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
+        JacobCPEj1C!(JM, x, uhLN, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
                 DMjL=DMjL,J=J,DM1RjL=DM1RjL,vth1jL=vth1jL,vthijL=vthijL,Vn1L=Vn1L,VnrL=VnrL,M1jL=M1jL,
-                crjL=crjL,arLL=arLL,ar2L=ar2L,ar4L=ar4L,O1jL2=O1jL2,O1jL=O1jL,
-                OrnL2=OrnL2,OrnL=OrnL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
+                crjL=crjL,arLL=arLL,ar2L=ar2L,ar4L=ar4L,O1jL2=O1jL2,O1jL=O1jL,OrnL2=OrnL2,OrnL=OrnL,
+                is_norm_uhL=is_norm_uhL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
     else
         if nMod == 2
-            JacobCPEjLC!(JM, x, L;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
+            JacobCPEjLC!(JM, x, uhLN, L;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
                         DMjL=DMjL,J=J,DM1RjL=DM1RjL,vth1jL=vth1jL,vthijL=vthijL,Vn1L=Vn1L,VnrL=VnrL,M1jL=M1jL,
-                        crjL=crjL,arLL=arLL,ar2L=ar2L,ar4L=ar4L,O1jL2=O1jL2,O1jL=O1jL,
-                        OrnL2=OrnL2,OrnL=OrnL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
+                        crjL=crjL,arLL=arLL,ar2L=ar2L,ar4L=ar4L,O1jL2=O1jL2,O1jL=O1jL,OrnL2=OrnL2,OrnL=OrnL,
+                        is_norm_uhL=is_norm_uhL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
         else
             fill!(JM, 0.0)
             vec13 = 1:3
@@ -320,7 +394,8 @@ function JacobCPEjLC!(JM::AbstractArray{T,N2}, x::AbstractVector{T}, L::Int, nMo
     
             nj = 0
             j = L + 4
-            N = (j - L) / 2 |> Int
+            # N = (j - 1) / 2 |> Int
+            N = 2
             for k in vec 
                 for i in vec13
                     nj += 1
@@ -331,11 +406,19 @@ function JacobCPEjLC!(JM::AbstractArray{T,N2}, x::AbstractVector{T}, L::Int, nMo
                 end
             end
     
-            uh1L = uh[nMod]^L
+            if is_norm_uhL
+                uh1L = (uh[nMod] / uhLN).^L
+            else
+                uh1L = uh[nMod]^L
+            end
             Vn1L[:] = [1.0, nh[nMod] / uh[nMod], nh[nMod] / vhth[nMod]]
             for s in vec
                 # JMC[:,s] = ∂\∂cs (MhjL[:])
-                uaiL = uh[s]^L
+                if is_norm_uhL
+                    uaiL = (uh[s] / uhLN).^L
+                else
+                    uaiL = uh[s]^L
+                end
                 vthijL[vec13] = [1.0, vhth2[s], vhth2[s]^2]
                 VnrL[:] = [1.0, nh[s] / uh[s], nh[s] / vhth[s]]
                 sn = 3(s - 1) .+ vec13
@@ -363,8 +446,8 @@ function JacobCPEjLC!(JM::AbstractArray{T,N2}, x::AbstractVector{T}, L::Int, nMo
                         # vth1jL = vhth2[nMod]^N
                         vthijL[4] = vhth2[s]^N
                         OrjL2,OrjL = OrjLN2Nb(uvth2[s],j,L,N;rtol_OrjL=rtol_OrjL)
-                        ddcMhjLC0D2V!(DMjL,J,DM1RjL,uh[nMod],vhth[nMod],uh1L,vth1jL[nj],uaiL,vthijL,Vn1L,VnrL,
-                               M1jL,crjL,arLL,ar2L,ar4L,O1jL2[nj],O1jL[nj],OrjL2,OrjL,OrnL2,OrnL,j,L)
+                        ddcMhjLC0D2V!(DMjL,J,DM1RjL,uh[nMod],vhth[nMod],uh1L,vth1jL[nj],uaiL,vthijL,Vn1L,VnrL,uhLN,M1jL,
+                               crjL,arLL,ar2L,ar4L,O1jL2[nj],O1jL[nj],OrjL2,OrjL,OrnL2,OrnL,j,L;is_norm_uhL=is_norm_uhL)
                         JM[nj, sn] = DMjL
                     end
                 end
@@ -374,7 +457,7 @@ function JacobCPEjLC!(JM::AbstractArray{T,N2}, x::AbstractVector{T}, L::Int, nMo
 end
 
 # nMod = 2
-function JacobCPEjLC!(JM::AbstractArray{T,N2}, x::AbstractVector{T}, L::Int; 
+function JacobCPEjLC!(JM::AbstractArray{T,N2}, x::AbstractVector{T}, uhLN::T, L::Int; 
     nh::AbstractVector{T}=[0.1, 1.0], uh::AbstractVector{T}=[0.1, 1.0], 
     vhth::AbstractVector{T}=[0.1, 1.0], vhth2::AbstractVector{T}=[0.1, 1.0], 
     uvth2::AbstractVector{T}=[0.1, 1.0],DMjL::AbstractVector{T}=[0.0,0.0,0.0],
@@ -385,18 +468,18 @@ function JacobCPEjLC!(JM::AbstractArray{T,N2}, x::AbstractVector{T}, L::Int;
     ar2L::AbstractVector{T}=[0.0,0.0,0.0],ar4L::AbstractVector{T}=[0.0,0.0,0.0],
     O1jL2::AbstractVector{T}=[0.0,0.0,0.0],O1jL::AbstractVector{T}=[0.0,0.0,0.0],
     OrnL2::AbstractVector{T}=[0.0,0.0,0.0],OrnL::AbstractVector{T}=[0.0,0.0,0.0],
-    rtol_OrjL::T=1e-10,atol_Mh::T=1e-10,rtol_Mh::T=1e-10) where{T,N2}
+    is_norm_uhL::Bool=true,rtol_OrjL::T=1e-10,atol_Mh::T=1e-10,rtol_Mh::T=1e-10) where{T,N2}
 
-    if L == 0
+    if L == 20
         JacobCPEj0C!(JM, x;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
                 DMjL=DMjL,J=J,DM1RjL=DM1RjL,vth1jL=vth1jL,vthijL=vthijL,Vn1L=Vn1L,VnrL=VnrL,M1jL=M1jL,
                 crjL=crjL,arLL=arLL,ar2L=ar2L,ar4L=ar4L,O1jL2=O1jL2,O1jL=O1jL,
                 OrnL2=OrnL2,OrnL=OrnL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
     elseif L == 11
-        JacobCPEj1C!(JM, x;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
+        JacobCPEj1C!(JM, x, uhLN;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
                 DMjL=DMjL,J=J,DM1RjL=DM1RjL,vth1jL=vth1jL,vthijL=vthijL,Vn1L=Vn1L,VnrL=VnrL,M1jL=M1jL,
-                crjL=crjL,arLL=arLL,ar2L=ar2L,ar4L=ar4L,O1jL2=O1jL2,O1jL=O1jL,
-                OrnL2=OrnL2,OrnL=OrnL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
+                crjL=crjL,arLL=arLL,ar2L=ar2L,ar4L=ar4L,O1jL2=O1jL2,O1jL=O1jL,OrnL2=OrnL2,OrnL=OrnL,
+                is_norm_uhL=is_norm_uhL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
     else
         fill!(JM, 0.0)
         vec13 = 1:3
@@ -411,7 +494,8 @@ function JacobCPEjLC!(JM::AbstractArray{T,N2}, x::AbstractVector{T}, L::Int;
 
         nj = 0
         j = L + 4
-        N = (j - L) / 2 |> Int
+        # N = (j - L) / 2 |> Int
+        N = 2
         for i in vec13
             nj += 1
             j += 2
@@ -420,11 +504,19 @@ function JacobCPEjLC!(JM::AbstractArray{T,N2}, x::AbstractVector{T}, L::Int;
             O1jL2[nj],O1jL[nj] = OrjLN2Nb(uvth2[2],j,L,N;rtol_OrjL=rtol_OrjL)
         end
 
-        uh1L = uh[2]^L
+        if is_norm_uhL
+            uh1L = (uh[2] / uhLN)^L
+        else
+            uh1L = uh[2]^L
+        end
         Vn1L[:] = [1.0, nh[2] / uh[2], nh[2] / vhth[2]]
         s = 1
         # JMC[:,s] = ∂\∂cs (MhjL[:])
-        uaiL = uh[s]^L
+        if is_norm_uhL
+            uaiL = (uh[s] / uhLN)^L
+        else
+            uaiL = uh[s]^L
+        end
         vthijL[vec13] = [1.0, vhth2[s], vhth2[s]^2]
         VnrL[:] = [1.0, nh[s] / uh[s], nh[s] / vhth[s]]
         sn = 3(s - 1) .+ vec13
@@ -451,8 +543,8 @@ function JacobCPEjLC!(JM::AbstractArray{T,N2}, x::AbstractVector{T}, L::Int;
             # vth1jL = vhth2[2]^N
             vthijL[4] = vhth2[s]^N
             OrjL2,OrjL = OrjLN2Nb(uvth2[s],j,L,N;rtol_OrjL=rtol_OrjL)
-            ddcMhjLC0D2V!(DMjL,J,DM1RjL,uh[2],vhth[2],uh1L,vth1jL[nj],uaiL,vthijL,Vn1L,VnrL,
-                   M1jL,crjL,arLL,ar2L,ar4L,O1jL2[nj],O1jL[nj],OrjL2,OrjL,OrnL2,OrnL,j,L)
+            ddcMhjLC0D2V!(DMjL,J,DM1RjL,uh[2],vhth[2],uh1L,vth1jL[nj],uaiL,vthijL,Vn1L,VnrL,uhLN,M1jL,
+                   crjL,arLL,ar2L,ar4L,O1jL2[nj],O1jL[nj],OrjL2,OrjL,OrnL2,OrnL,j,L;is_norm_uhL=is_norm_uhL)
             JM[nj, sn] = DMjL
         end
     end

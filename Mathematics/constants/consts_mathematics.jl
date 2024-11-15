@@ -1,15 +1,4 @@
 ## Mathematic constants
-datatype = Float64
-Pi = π |> datatype
-const sqrt2 = 2^0.5
-const sqrtpi = 1.772453850905516027298
-const pi3 = π^3      # = π^3)
-const sqrtpi3 = π^(3/2)      # = √(π^3) = π^(3/2)
-const sqrt2pi = (2π)^0.5
-const sqrt2invpi = (2 / π) ^ 0.5
-
-const lnpi = log(pi)
-const lnsqrtpi3 = log(sqrtpi3)
 
 const epsT = eps(Float64)  # for the limit of the absolute error when `Float64` is used
 const epsT1 = eps(Float64)  # for the limit of the absolute error when `Float64` is used

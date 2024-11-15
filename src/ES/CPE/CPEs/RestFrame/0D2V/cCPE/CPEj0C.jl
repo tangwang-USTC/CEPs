@@ -67,7 +67,7 @@ function CPEj0C!(out::AbstractVector{T}, x::AbstractVector{T}, nMod::Int;
   
       nj += 1
       j = 2
-      Orj0 = CjLk(j,1) * uvth2
+      Orj0 = CjLk(T(j),T(1)) * uvth2
       Mr2 = sum_kbn((nh[vec] .* vhth2[vec]) .* (1 .+ Orj0[vec]))
       M1jL[2] = (Mhst[nj] - Mr2) / M1jL[1]               # RM12L
   
@@ -89,7 +89,7 @@ function CPEj0C!(out::AbstractVector{T}, x::AbstractVector{T}, nMod::Int;
       else
           nh[nMod] = M1jL[1]
       end
-      vhth2[nMod] = M1jL[2] - 2/3 * uhr2
+      vhth2[nMod] = M1jL[2] - T(2)/3 * uhr2
       vhth[nMod] = (vhth2[nMod])^0.5
       uvth2[nMod] = uhr2 ./ vhth2[nMod]
   
@@ -134,7 +134,7 @@ function CPEj0C!(out::AbstractVector{T}, x::AbstractVector{T};
 
     nj += 1
     j = 2
-    Orj0 = CjLk(j,1) * uvth2
+    Orj0 = CjLk(T(j),T(1)) * uvth2
     Mr2 = (nh[vec] * vhth2[vec]) * (1 + Orj0[vec])
     M1jL[2] = (Mhst[nj] - Mr2) / M1jL[1]               # RM12L
 
@@ -156,7 +156,7 @@ function CPEj0C!(out::AbstractVector{T}, x::AbstractVector{T};
     else
         nh[2] = M1jL[1]
     end
-    vhth2[2] = M1jL[2] - 2/3 * uhr2
+    vhth2[2] = M1jL[2] - T(2)/3 * uhr2
     vhth[2] = (vhth2[2])^0.5
     uvth2[2] = uhr2 / vhth2[2]
 

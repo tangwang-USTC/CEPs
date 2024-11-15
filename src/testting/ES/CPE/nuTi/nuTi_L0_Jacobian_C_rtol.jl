@@ -34,14 +34,14 @@ is_re_seed = false
 
 if is_re_seed
         naiL0 = rand(nModL0)
-        naiL0 /= sum(naiL0)
+        naiL0 /= sum_kbn(naiL0)
         # naiL0 /= sum_kbn(naiL0)
         # naiL00 = naiL0 / sum_kbn(naiL0)
-        # sum(naiL00)-1, sum(naiL0)-1
+        # sum_kbn(naiL00)-1, sum_kbn(naiL0)-1
         
         
         vthiL0 = rand(nModL0)
-        vthiL0 /= sum(vthiL0)
+        vthiL0 /= sum_kbn(vthiL0)
         vthiL0 *= nModL0
         
         uaiL0 = randn(nModL0)
@@ -57,7 +57,7 @@ mathtype = :Exact       # [:Exact, :Taylor0, :Taylor1, :TaylorInf]
 is_renorm = true
 # is_renorm = false
 Mhj0 = zeros(njML0)
-MhsKMM0!(Mhj0,jvecL0,naiL0,uaiL0,vthiL0,nModL0;is_renorm=is_renorm,mathtype=mathtype)
+MhsKMM0!(Mhj0,jvecL0,naiL0,uaiL0,vthiL0,nModL0;is_renorm=is_renorm,rtol_OrjL=rtol_OrjL,mathtype=mathtype)
 
 # println()
 # Msnnt = zeros(njML0)

@@ -15,10 +15,10 @@ function Orj0Nb!(OrjL::AbstractVector{T},uvth2::AbstractVector{T},
     if j == 0
         OrjL[:] .= 0.0
     elseif j == 2
-        OrjL[:] =  CjLk(j,1) * uvth2
+        OrjL[:] =  CjLk(T(j),T(1)) * uvth2
     else
-        OrjL[:] = CjLk(j,1) * uvth2
-        CjLks = CjLk.(j,1:N)
+        OrjL[:] = CjLk(T(j),T(1)) * uvth2
+        CjLks = CjLk.(T(j),T.(1:N))
         for i in 1:nMod
             for k in 2:N
                 ak = CjLks[k] * uvth2[i]^k
@@ -34,13 +34,13 @@ end
 function Orj0Nb(uvth2::T,j::Int,N::Int;rtol_OrjL::T=1e-10) where {T<:Real}
     
     if j == 0
-        return 0.0
+        return 0.0 |> T
     elseif j == 2
-        return CjLk(j,1) * uvth2
+        return CjLk(T(j),T(1)) * uvth2
     else
-        a = CjLk(j,1) * uvth2
+        a = CjLk(T(j),T(1)) * uvth2
         for k in 2:N
-            ak = CjLk(j,k) * uvth2.^k
+            ak = CjLk(T(j),T(k)) * uvth2.^k
             a += ak
             if ak ≤ rtol_OrjL
                 break
@@ -67,10 +67,10 @@ function Orj0N2b!(OrjL2::AbstractVector{T},uvth2::AbstractVector{T},
     if j == 0
         OrjL2[:] .= 0.0
     elseif j == 2
-        OrjL2[:] = 2 * CjLk(j,1) * uvth2
+        OrjL2[:] = 2 * CjLk(T(j),T(1)) * uvth2
     else
-        OrjL2[:] = 2 * CjLk(j,1) * uvth2
-        CjLks = CjLk.(j,1:N)
+        OrjL2[:] = 2 * CjLk(T(j),T(1)) * uvth2
+        CjLks = CjLk.(T(j),T.(1:N))
         for i in 1:nMod
             for k in 2:N
                 ak = CjLks[k] * uvth2[i]^k
@@ -86,13 +86,13 @@ end
 function Orj0N2b(uvth2::T,j::Int,N::Int;rtol_OrjL::T=1e-10) where {T<:Real}
     
     if j == 0
-        return 0.0
+        return 0.0 |> T
     elseif j == 2
-        return 2 * CjLk(j,1) * uvth2
+        return 2 * CjLk(T(j),T(1)) * uvth2
     else
-        a = 2 * CjLk(j,1) * uvth2
+        a = 2 * CjLk(T(j),T(1)) * uvth2
         for k in 2:N
-            ak = CjLk(j,k) * uvth2.^k
+            ak = CjLk(T(j),T(k)) * uvth2.^k
             a += 2k * ak
             if ak ≤ rtol_OrjL
                 break
@@ -120,13 +120,13 @@ function Orj0N2Nb!(Orj02::AbstractVector{T},Orj0::AbstractVector{T},uvth2::Abstr
         Orj0[:] .= 0.0
         Orj02[:] .= 0.0
     elseif j == 2
-        Orj0[:] = CjLk(j,1) * uvth2
+        Orj0[:] = CjLk(T(j),T(1)) * uvth2
         Orj02[:] = 2 * Orj0[:]
     else
         Cj0ks = CjLk.(j,1:N)
         k = 1
         Orj0[:] = Cj0ks[k] * uvth2
-        Orj02[:] = 2 * Orj0[:]
+        Orj02[:] = 2 * Orj0
         for i in 1:nMod
             for k in 2:N
                 ak = Cj0ks[k] * uvth2[i]^k
@@ -143,15 +143,15 @@ end
 function Orj0N2Nb(uvth2::T,j::Int,N::Int;rtol_OrjL::T=1e-10) where {T<:Real}
     
     if j == 0
-        return 0.0, 0.0
+        return T(0), T(0)
     elseif j == 2
-        a = CjLk(j,1) * uvth2
+        a = CjLk(T(j),T(1)) * uvth2
         return 2a, a
     else
-        a = CjLk(j,1) * uvth2
+        a = CjLk(T(j),T(1)) * uvth2
         Orj02 = 2a
         for k in 2:N
-            ak = CjLk(j,k) * uvth2.^k
+            ak = CjLk(T(j),T(k)) * uvth2.^k
             a += ak
             Orj02 += 2k * ak
             if ak ≤ rtol_OrjL

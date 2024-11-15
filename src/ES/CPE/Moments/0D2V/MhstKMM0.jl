@@ -42,25 +42,25 @@
     mathtype: [:Exact, :Taylor0, :Taylor1, :TaylorInf]
 
   Outputs
-    Mhst = MhsKMM0!(Mhst,jvec,nai,uai,vthi,nMod,ns;is_renorm=is_renorm,mathtype=mathtype)
-    Mhst = MhsKMM0!(Mhst,jvec,uai,ns;is_renorm=is_renorm,mathtype=mathtype)
+    Mhst = MhsKMM0!(Mhst,jvec,nai,uai,vthi,nMod,ns;is_renorm=is_renorm,rtol_OrjL=rtol_OrjL,mathtype=mathtype)
+    Mhst = MhsKMM0!(Mhst,jvec,uai,ns;is_renorm=is_renorm,rtol_OrjL=rtol_OrjL,mathtype=mathtype)
 
 """
 
 # 2.5D, [nMod,njMs,ns]
 function MhsKMM0!(Mhst::AbstractArray{T},jvec::Vector{Int},
     nai::Vector{AbstractVector{T}},uai::Vector{AbstractVector{T}},vthi::Vector{AbstractVector{T}},
-    nMod::Vector{Int},ns::Int64;is_renorm::Bool=true,mathtype::Symbol=:Exact) where{T}
+    nMod::Vector{Int},ns::Int64;is_renorm::Bool=true,rtol_OrjL::T=1e-10,mathtype::Symbol=:Exact) where{T}
     
     for isp in 1:ns 
         if nMod == 1
-            MhsKMM0!(Mhst[:,isp],jvec,uai[isp][vec];is_renorm=is_renorm,mathtype=mathtype) 
+            MhsKMM0!(Mhst[:,isp],jvec,uai[isp][vec];is_renorm=is_renorm,rtol_OrjL=rtol_OrjL,mathtype=mathtype) 
         else
             vec = 1:nMod[isp] 
-            MhsKMM0!(Mhst[:,isp],jvec,nai[isp][vec],uai[isp][vec],vthi[isp][vec],nMod[isp];is_renorm=is_renorm,mathtype=mathtype) 
+            MhsKMM0!(Mhst[:,isp],jvec,nai[isp][vec],uai[isp][vec],vthi[isp][vec],nMod[isp];
+                    is_renorm=is_renorm,rtol_OrjL=rtol_OrjL,mathtype=mathtype) 
         end
     end
-    return Mhst
 end
 
 """
@@ -69,26 +69,27 @@ end
     mathtype: [:Exact, :Taylor0, :Taylor1, :TaylorInf]
 
   Outputs
-    Mhst = MhsKMM0!(Mhst,jvec,nai,uai,vthi,nMod;is_renorm=is_renorm,mathtype=mathtype)
-    Mhst = MhsKMM0!(Mhst,jvec,uai;is_renorm=is_renorm,mathtype=mathtype)
+    Mhst = MhsKMM0!(Mhst,jvec,nai,uai,vthi,nMod;
+                    is_renorm=is_renorm,rtol_OrjL=rtol_OrjL,mathtype=mathtype)
+    Mhst = MhsKMM0!(Mhst,jvec,uai;is_renorm=is_renorm,rtol_OrjL=rtol_OrjL,mathtype=mathtype)
 
 """
 
 # 1.5D, [nMod,njMs]
 function MhsKMM0!(Mhst::AbstractVector{T},jvec::Vector{Int},
     nai::AbstractVector{T},uai::AbstractVector{T},vthi::AbstractVector{T},
-    nMod::Int;is_renorm::Bool=true,mathtype::Symbol=:Exact) where{T}
+    nMod::Int;is_renorm::Bool=true,rtol_OrjL::T=1e-10,mathtype::Symbol=:Exact) where{T}
     
-    if sum(abs.(uai)) ≤ eps(T)
+    if sum_kbn(abs.(uai)) ≤ eps(T)
         MhsMMM!(Mhst,jvec,nai,vthi;is_renorm=is_renorm) 
     else
         k = 0 
         for j in jvec 
             k += 1
-            Mhst[k] = MhsKMM0(j,nai,uai,vthi,nMod;is_renorm=is_renorm,mathtype=mathtype) 
+            Mhst[k] = MhsKMM0(j,nai,uai,vthi,nMod;
+                             is_renorm=is_renorm,rtol_OrjL=rtol_OrjL,mathtype=mathtype) 
         end
     end
-    return Mhst
 end
 
 
@@ -98,26 +99,26 @@ end
     mathtype: [:Exact, :Taylor0, :Taylor1, :TaylorInf]
 
   Outputs
-    Mhst = MhsKMM0(j,nai,uai,vthi,nMod;is_renorm=is_renorm,mathtype=mathtype)
-    Mhst = MhsKMM0(j,uai;is_renorm=is_renorm,mathtype=mathtype)
+    Mhst = MhsKMM0(j,nai,uai,vthi,nMod;is_renorm=is_renorm,rtol_OrjL=rtol_OrjL,mathtype=mathtype)
+    Mhst = MhsKMM0(j,uai;is_renorm=is_renorm,rtol_OrjL=rtol_OrjL,mathtype=mathtype)
 
 """
 
 # 0.5D, [nMod]
 function MhsKMM0(j::Int64,nai::AbstractVector{T},uai::AbstractVector{T},vthi::AbstractVector{T},
-    nMod::Int;is_renorm::Bool=true,mathtype::Symbol=:Exact) where{T}
+    nMod::Int;is_renorm::Bool=true,rtol_OrjL::T=1e-10,mathtype::Symbol=:Exact) where{T}
     
-    if sum(abs.(uai)) ≤ eps(T)
+    if sum_kbn(abs.(uai)) ≤ eps(T)
         return MhsMMM(j,nai,vthi;is_renorm=is_renorm) 
     else
-        Mh = 0.0 
+        Mh = 0.0  |> T
         for s = 1:nMod 
-            Mh += MhsKMM0(j,nai[s],uai[s],vthi[s];is_renorm=true,mathtype=mathtype) 
+            Mh += MhsKMM0(j,nai[s],uai[s],vthi[s];is_renorm=true,rtol_OrjL=rtol_OrjL,mathtype=mathtype) 
         end
         if is_renorm
             return Mh
         else
-            return CMjL(j) * Mh
+            return CMjL(T(j)) * Mh
         end
     end
 end
@@ -128,15 +129,16 @@ end
     mathtype: [:Exact, :Taylor0, :Taylor1, :TaylorInf]
 
   Outputs
-    Mhst = MhsKMM0(j,nai,uai,vthi;is_renorm=is_renorm,mathtype=mathtype)
-    Mhst = MhsKMM0(j,uai;is_renorm=is_renorm,mathtype=mathtype)
+    Mhst = MhsKMM0(j,nai,uai,vthi;is_renorm=is_renorm,rtol_OrjL=rtol_OrjL,mathtype=mathtype)
+    Mhst = MhsKMM0(j,uai;is_renorm=is_renorm,rtol_OrjL=rtol_OrjL,mathtype=mathtype)
 
 """
 
 # 0.5D, []
-function MhsKMM0(j::Int64,nai::T,uai::T,vthi::T;is_renorm::Bool=true,mathtype::Symbol=:Exact) where{T}
+function MhsKMM0(j::Int64,nai::T,uai::T,vthi::T;
+    is_renorm::Bool=true,rtol_OrjL::T=1e-10,mathtype::Symbol=:Exact) where{T}
     
-    if sum(abs.(uai)) ≤ eps(T)
+    if abs.(uai) ≤ eps(T)
         if isone(vthi)
             return MhsMMM(j;is_renorm=is_renorm) * nai
         else
@@ -157,15 +159,15 @@ function MhsKMM0(j::Int64,nai::T,uai::T,vthi::T;is_renorm::Bool=true,mathtype::S
                         end
                     end
                 else
-                    a = 1.0 
+                    a = 1.0  |> T
                     for k in 1:Int(j/2)
-                        a += CjLk(j,k) * uai^(2k)
+                        a += CjLk(T(j),T(k)) * uai^(2k)
                     end
                 end
                 if is_renorm
                     return a * nai
                 else
-                    return CMjL(j) * a * nai
+                    return CMjL(T(j)) * a * nai
                 end
             else
                 uhh = uai/vthi 
@@ -181,15 +183,15 @@ function MhsKMM0(j::Int64,nai::T,uai::T,vthi::T;is_renorm::Bool=true,mathtype::S
                         end
                     end
                 else
-                    a = 1.0
+                    a = 1.0 |> T
                     for k in 1:Int(j/2)
-                        a += CjLk(j,k) * (uhh)^(2k)
+                        a += CjLk(T(j),T(k)) * (uhh)^(2k)
                     end
                 end
                 if is_renorm
                     return a * nai * vthi^j               # * uhh^L 
                 else
-                    return CMjL(j) * a * nai * vthi^j     # * uhh^L 
+                    return CMjL(T(j)) * a * nai * vthi^j     # * uhh^L 
                 end
             end
         else
@@ -211,7 +213,7 @@ end
 # j = L = 0
 function MhsKMM0(nai::T) where{T}
     
-    return nai
+    return nai[:]
 end
 """
 """
@@ -219,26 +221,27 @@ end
 # nMod = 1 -> nai = 1, vthi = 1
 
 # 2D, [njMs,ns]
-function MhsKMM0!(Mhst::AbstractArray{T},jvec::Vector{Int},uai::T,ns::Int64;is_renorm::Bool=true,mathtype::Symbol=:Exact) where{T}
+function MhsKMM0!(Mhst::AbstractArray{T},jvec::Vector{Int},uai::T,ns::Int64;
+    is_renorm::Bool=true,rtol_OrjL::T=1e-10,mathtype::Symbol=:Exact) where{T}
 
     for isp in 1:ns 
-        MhsKMM0!(Mhst[:,isp],jvec,uai;is_renorm=is_renorm,mathtype=mathtype) 
+        MhsKMM0!(Mhst[:,isp],jvec,uai;
+                is_renorm=is_renorm,rtol_OrjL=rtol_OrjL,mathtype=mathtype) 
     end
-    return Mhst
 end
 
 # 1D, [njMs]
-function MhsKMM0!(Mhst::AbstractVector{T},jvec::Vector{Int},uai::T;is_renorm::Bool=true,mathtype::Symbol=:Exact) where{T}
+function MhsKMM0!(Mhst::AbstractVector{T},jvec::Vector{Int},uai::T;
+    is_renorm::Bool=true,rtol_OrjL::T=1e-10,mathtype::Symbol=:Exact) where{T}
 
     k = 0 
     for j in jvec 
         Mhst[k+1] = MhsKMM0(j,uai;is_renorm=is_renorm,mathtype=mathtype)
     end
-    return Mhst
 end
 
 # 0D, []   
-function MhsKMM0(j::Int,uai::T;is_renorm::Bool=true,mathtype::Symbol=:Exact) where{T}
+function MhsKMM0(j::Int,uai::T;is_renorm::Bool=true,rtol_OrjL::T=1e-10,mathtype::Symbol=:Exact) where{T}
     
     if abs(uai) ≤ eps(T)
         return MhsMMM(j)
@@ -256,15 +259,15 @@ function MhsKMM0(j::Int,uai::T;is_renorm::Bool=true,mathtype::Symbol=:Exact) whe
                     end
                 end
             else
-                a = 1.0 
+                a = 1.0  |> T
                 for k in 1:Int(j/2) 
-                    a += CjLk(j,k) * uai^(2k)
+                    a += CjLk(T(j),T(k)) * uai^(2k)
                 end
             end
             if is_renorm
                 return a
             else
-                return CMjL(j) * a
+                return CMjL(T(j)) * a
             end
         else
             if mathtype == :Exact

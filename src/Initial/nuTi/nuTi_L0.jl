@@ -1,12 +1,13 @@
 # using KahanSummation
 
+dfgghghhh
 nModL0 = 3
 
 
 naiL0 = rand(nModL0)
 naiL0 /= sum_kbn(naiL0)
 # naiL00 = naiL0 / sum_kbn(naiL0)
-# sum(naiL00)-1, sum(naiL0)-1
+# sum_kbn(naiL00)-1, sum_kbn(naiL0)-1
 
 
 vthiL0 = rand(nModL0)

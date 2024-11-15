@@ -6,13 +6,13 @@ if 1 == 1
         Mhr0s = naiLt0
 
         # Mhr2s = naiLt0 .* (vthiLt0.^2 + CjLk(2,1) * uaiLt0.^2)
-        # # @show Mhj0[2] - sum(Mhr2s)
-        # # @show sum(Mhr2s), Mhr2s
+        # # @show Mhj0[2] - sum_kbn(Mhr2s)
+        # # @show sum_kbn(Mhr2s), Mhr2s
 
         # Or40 = zeros(nModL0)
         # Orj0Nb!(Or40,(uaiLt0./vthiLt0).^2,4,2,nModL0;rtol_OrjL=rtol_OrjL)
         # Mhr4s = (naiLt0 .* (vthiLt0).^4) .* (1 .+ Or40)
-        # # @show Mhj0[3] - sum(Mhr4s)
+        # # @show Mhj0[3] - sum_kbn(Mhr4s)
         # uhh2 = 1.5 * (2.5 * ((Mhr2s ./ Mhr0s).^2 - (Mhr4s ./ Mhr0s))).^0.5
 
         println("//////////////////////////////")
@@ -48,10 +48,10 @@ if 1 == 1
         #     end
             vthio = xfit[3:3:end]
             Mhj0o = zeros(njML0)
-            MhsKMM0!(Mhj0o,jvecL0,naio,uaio,vthio,nModL0;is_renorm=is_renorm,mathtype=mathtype)
+            MhsKMM0!(Mhj0o,jvecL0,naio,uaio,vthio,nModL0;is_renorm=is_renorm,rtol_OrjL=rtol_OrjL,mathtype=mathtype)
             
-            RDn = fmt2(sum(naio) - 1.0)
-            RDTT = fmt2(sum(naio .* uaio .^2) / sum(naiL0 .* uaiL0 .^2) - 1.0)
+            RDn = fmt2(sum_kbn(naio) - 1.0)
+            RDTT = fmt2(sum_kbn(naio .* uaio .^2) / sum_kbn(naiL0 .* uaiL0 .^2) - 1.0)
             RDMs = (Mhj0o[1:3nModL0] ./ Mhj0[1:3nModL0] .- 1)
         # end
         println()
@@ -103,10 +103,10 @@ if 1 == 1
         #     end
             vthio = xfit[3:3:end]
             Mhj0o = zeros(njML0)
-            MhsKMM0!(Mhj0o,jvecL0,naio,uaio,vthio,nModL0;is_renorm=is_renorm,mathtype=mathtype)
+            MhsKMM0!(Mhj0o,jvecL0,naio,uaio,vthio,nModL0;is_renorm=is_renorm,rtol_OrjL=rtol_OrjL,mathtype=mathtype)
             
-            RDn = fmt2(sum(naio) - 1.0)
-            RDTT = fmt2(sum(naio .* uaio .^2) / sum(naiL0 .* uaiL0 .^2) - 1.0)
+            RDn = fmt2(sum_kbn(naio) - 1.0)
+            RDTT = fmt2(sum_kbn(naio .* uaio .^2) / sum_kbn(naiL0 .* uaiL0 .^2) - 1.0)
             RDMs = (Mhj0o[1:3nModL0] ./ Mhj0[1:3nModL0] .- 1)
         # end
         println()

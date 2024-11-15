@@ -26,19 +26,19 @@
     Mhst: = M̂ⱼₗ*, which is the renormalized general kinetic moments.
 
   Outputs:
-    CPEj1!(out, x, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,rtol_OrjL=rtol_OrjL)
-    CPEj1!(out, x, nMod,Mhst;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,rtol_OrjL=rtol_OrjL)
+    CPEj1!(out, x, uhLN, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,rtol_OrjL=rtol_OrjL)
+    CPEj1!(out, x, uhLN, nMod,Mhst;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,rtol_OrjL=rtol_OrjL)
 
 """
 
 # nMode = 1
 
 # nMode ≥ 2
-function CPEj1!(out::AbstractVector{T}, x::AbstractVector{T}, nMod::Int;
+function CPEj1!(out::AbstractVector{T}, x::AbstractVector{T}, uhLN::T, nMod::Int;
     nh::AbstractVector{T}=[0.1, 1.0], uh::AbstractVector{T}=[0.1, 1.0], 
     vhth::AbstractVector{T}=[0.1, 1.0], vhth2::AbstractVector{T}=[0.1, 1.0], 
     uvth2::AbstractVector{T}=[0.1, 1.0], Mhst::AbstractVector{T}=[0.1, 1.0], 
-    rtol_OrjL::T=1e-10) where{T}
+    is_norm_uhL::Bool=true,rtol_OrjL::T=1e-10) where{T}
 
     nh[:] = x[1:3:end]
     uh[:] = x[2:3:end]
@@ -74,10 +74,10 @@ function CPEj1!(out::AbstractVector{T}, x::AbstractVector{T}, nMod::Int;
     end
 end
 
-function CPEj1!(out::AbstractVector{T}, x::AbstractVector{T}, nMod::Int, Mhst::AbstractVector{T};
+function CPEj1!(out::AbstractVector{T}, x::AbstractVector{T}, uhLN::T, nMod::Int, Mhst::AbstractVector{T};
     nh::AbstractVector{T}=[0.1, 1.0], uh::AbstractVector{T}=[0.1, 1.0], 
     vhth::AbstractVector{T}=[0.1, 1.0], vhth2::AbstractVector{T}=[0.1, 1.0], 
-    uvth2::AbstractVector{T}=[0.1, 1.0], rtol_OrjL::T=1e-10) where{T}
+    uvth2::AbstractVector{T}=[0.1, 1.0], is_norm_uhL::Bool=true,rtol_OrjL::T=1e-10) where{T}
 
     nh[:] = x[1:3:end]
     uh[:] = x[2:3:end]
@@ -122,16 +122,16 @@ end
     vhth: = vthi[1:nMod]
 
   Outputs:
-    JacobCPEj1!(J, x, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,rtol_OrjL=rtol_OrjL)
+    JacobCPEj1!(J, x, uhLN, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,rtol_OrjL=rtol_OrjL)
 """
 
 # The Jacobian matrix: J = zeros(T,nMod-1,nMod-1)
 
 # nMode ≥ 2
-function JacobCPEj1!(J::AbstractArray{T,N2}, x::AbstractVector{T}, nMod::Int; 
+function JacobCPEj1!(J::AbstractArray{T,N2}, x::AbstractVector{T}, uhLN::T, nMod::Int; 
     nh::AbstractVector{T}=[0.1, 1.0], uh::AbstractVector{T}=[0.1, 1.0], 
     vhth::AbstractVector{T}=[0.1, 1.0], vhth2::AbstractVector{T}=[0.1, 1.0], 
-    uvth2::AbstractVector{T}=[0.1, 1.0], rtol_OrjL::T=1e-10) where{T,N2}
+    uvth2::AbstractVector{T}=[0.1, 1.0], is_norm_uhL::Bool=true,rtol_OrjL::T=1e-10) where{T,N2}
 
     fill!(J, 0.0)
 
@@ -144,8 +144,8 @@ function JacobCPEj1!(J::AbstractArray{T,N2}, x::AbstractVector{T}, nMod::Int;
 
     vec = 1:nMod
     nj = 1
-    # j = 0
-    # N = 0
+    j = 0
+    N = 0
     for s in vec
         OrjL2,OrjL = OrjLN2Nb(uvth2[s],j,1,N;rtol_OrjL=rtol_OrjL)
         sn = 3(s - 1)
@@ -158,7 +158,7 @@ function JacobCPEj1!(J::AbstractArray{T,N2}, x::AbstractVector{T}, nMod::Int;
     nj = 2
     j = 3
     j1 = 2
-    # N = 1
+    N = 1
     for s in vec
         OrjL2,OrjL = OrjLN2Nb(uvth2[s],j,1,N;rtol_OrjL=rtol_OrjL)
         sn = 3(s - 1)

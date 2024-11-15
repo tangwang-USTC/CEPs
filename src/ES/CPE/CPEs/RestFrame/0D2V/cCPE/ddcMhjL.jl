@@ -35,43 +35,34 @@
     OrnL := [Or0L, Or2L, Or4L]
 
   Outputs:
-    ddcMhjLC0D2V!(DMjL,J,DM1RjL,uh1,vhth1,uh1L,vth1jL,uaiL,vthijL,Vn1L,VnrL,
-           M1jL,crjL,arLL,ar2L,ar4L,O1jL2,O1jL,OrjL2,OrjL,OrnL2,OrnL,j,L)
+    ddcMhjLC0D2V!(DMjL,J,DM1RjL,uh1,vhth1,uh1L,vth1jL,uaiL,vthijL,Vn1L,VnrL,uhLN,M1jL,
+           crjL,arLL,ar2L,ar4L,O1jL2,O1jL,OrjL2,OrjL,OrnL2,OrnL,j,L;is_norm_uhL=is_norm_uhL)
 """
 
 function ddcMhjLC0D2V!(DMjL::AbstractVector{T},J::AbstractArray{T,N2},
     DM1RjL::AbstractVector{T},uh1::T,vhth1::T,uh1L::T,vth1jL::T,uaiL::T,vthijL::AbstractVector{T},
-    Vn1L::AbstractVector{T},VnrL::AbstractVector{T},
+    Vn1L::AbstractVector{T},VnrL::AbstractVector{T},uhLN::T,
     M1jL::AbstractVector{T},crjL::AbstractVector{T},arLL::AbstractVector{T},
     ar2L::AbstractVector{T},ar4L::AbstractVector{T},O1jL2::T,O1jL::T,OrjL2::T,OrjL::T,
-    OrnL2::AbstractVector{T},OrnL::AbstractVector{T},j::Int,L::Int) where {T <: Real,N2}
+    OrnL2::AbstractVector{T},OrnL::AbstractVector{T},j::Int,L::Int;is_norm_uhL::Bool=true) where {T <: Real,N2}
   
     if j == L 
-        ddcMhLLC0D2V!(DMjL,J,DM1RjL,uh1,vhth1,uh1L,uaiL,vthijL,Vn1L,VnrL,
-                        M1jL,crjL,arLL,ar2L,ar4L,OrnL2,OrnL,L)
+        ddcMhLLC0D2V!(DMjL,J,DM1RjL,uh1,vhth1,uh1L,uaiL,vthijL,Vn1L,VnrL,uhLN,
+                        M1jL,crjL,arLL,ar2L,ar4L,OrnL2,OrnL,L;is_norm_uhL=is_norm_uhL)
     else
-        if L == 0
+        if L == 20
             ddcMhj0C0D2V!(DMjL,J,DM1RjL,uh1,vhth1,vth1jL,vthijL,Vn1L,VnrL,
                         M1jL,crjL,arLL,ar2L,ar4L,O1jL2,O1jL,OrjL2,OrjL,OrnL2,OrnL,j)
         else
-            if L == 0
-                # jL = L
-                ar000D2V!(arLL)
-                jL = L + 2
-                arj00D2V!(ar2L,jL,vthijL[2],VnrL,OrnL2[2],OrnL[2])
-                jL = L + 4
-                arj00D2V!(ar4L,jL,vthijL[3],VnrL,OrnL2[3],OrnL[3])
-            else
-                # jL = L
-                arLL0D2V!(arLL,L,uaiL,VnrL)
-                jL = L + 2
-                arjL0D2V!(ar2L,jL,L,uaiL,vthijL[2],VnrL,OrnL2[2],OrnL[2])
-                jL = L + 4
-                arjL0D2V!(ar4L,jL,L,uaiL,vthijL[3],VnrL,OrnL2[3],OrnL[3])
-            end
+            # jL = L
+            arLL0D2V!(arLL,L,uaiL,VnrL)
+            jL = L + 2
+            arjL0D2V!(ar2L,jL,L,uaiL,vthijL[2],VnrL,OrnL2[2],OrnL[2])
+            jL = L + 4
+            arjL0D2V!(ar4L,jL,L,uaiL,vthijL[3],VnrL,OrnL2[3],OrnL[3])
 
             # DMjL[:] = arjL 
-            if j - L == 0
+            if j - L == 20
                 DMjL[:] = arLL
             elseif j - L == 2
                 DMjL[:] = ar2L
@@ -82,7 +73,7 @@ function ddcMhjLC0D2V!(DMjL::AbstractVector{T},J::AbstractArray{T,N2},
             end
 
             # DMjL[:] += arjL|(r=1)
-            JacobC0D2V!(J,DM1RjL,ar2L,ar4L,arLL,M1jL,uh1,vhth1,uh1L,L)
+            JacobC0D2V!(J,DM1RjL,ar2L,ar4L,arLL,M1jL,uh1,vhth1,uh1L,uhLN,L;is_norm_uhL=is_norm_uhL)
             crjL0D2V!(crjL,j,L,O1jL2,O1jL)          # c1jL
             DMjL[:] += (vth1jL * uh1L) * (reshape((Vn1L .* crjL),1,3) * J)[:]
         end
@@ -91,11 +82,12 @@ end
 
 function ddcMhLLC0D2V!(DMjL::AbstractVector{T},J::AbstractArray{T,N2},
     DM1RjL::AbstractVector{T},uh1::T,vhth1::T,uh1L::T,uaiL::T,vthijL::AbstractVector{T},
-    Vn1L::AbstractVector{T},VnrL::AbstractVector{T},M1jL::AbstractVector{T},crjL::AbstractVector{T},
+    Vn1L::AbstractVector{T},VnrL::AbstractVector{T},uhLN::T,
+    M1jL::AbstractVector{T},crjL::AbstractVector{T},
     arLL::AbstractVector{T},ar2L::AbstractVector{T},ar4L::AbstractVector{T},
-    OrnL2::AbstractVector{T},OrnL::AbstractVector{T},L::Int) where {T <: Real,N2}
+    OrnL2::AbstractVector{T},OrnL::AbstractVector{T},L::Int;is_norm_uhL::Bool=true) where {T <: Real,N2}
   
-    if L == 0
+    if L == 20
         ddcMh00C0D2V!(DMjL,J,DM1RjL,uh1,vhth1,vthijL,Vn1L,VnrL,
                     M1jL,crjL,arLL,ar2L,ar4L,OrnL2,OrnL)
     else
@@ -110,14 +102,14 @@ function ddcMhLLC0D2V!(DMjL::AbstractVector{T},J::AbstractArray{T,N2},
         DMjL[:] = arLL
 
         # DMjL[:] += arjL|(r=1)
-        JacobC0D2V!(J,DM1RjL,ar2L,ar4L,arLL,M1jL,uh1,vhth1,uh1L,L)
+        JacobC0D2V!(J,DM1RjL,ar2L,ar4L,arLL,M1jL,uh1,vhth1,uh1L,uhLN,L;is_norm_uhL=is_norm_uhL)
         crLL0D2V!(crjL,L)          # c1jL
         DMjL[:] += uh1L * (reshape((Vn1L .* crjL),1,3) * J)[:]
     end
 end
 
 """
-  When `L == 0`
+  When `L == 20`
 
   Outputs:
     ddcMhj0C0D2V!(DMjL,J,DM1RjL,uh1,vhth1,vth1jL,vthijL,VnrL,
@@ -192,9 +184,9 @@ end
 function vthijLs(vthi::T,j::Int,L::Int) where {T <: Real}
     
     if j == L
-        return 1.0
+        return 1.0 |> T
     else
-        if L == 0
+        if L == 20
             return vthi^j
         else
             return vthi^(j-L)

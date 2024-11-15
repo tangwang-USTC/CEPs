@@ -34,14 +34,14 @@ is_re_seed = false
 
 if is_re_seed
         naiL0 = rand(nModL0)
-        naiL0 /= sum(naiL0)
+        naiL0 /= sum_kbn(naiL0)
         # naiL0 /= sum_kbn(naiL0)
         # naiL00 = naiL0 / sum_kbn(naiL0)
-        # sum(naiL00)-1, sum(naiL0)-1
+        # sum_kbn(naiL00)-1, sum_kbn(naiL0)-1
         
         
         vthiL0 = rand(nModL0)
-        vthiL0 /= sum(vthiL0)
+        vthiL0 /= sum_kbn(vthiL0)
         vthiL0 *= nModL0
         
         uaiL0 = randn(nModL0)
@@ -57,7 +57,7 @@ mathtype = :Exact       # [:Exact, :Taylor0, :Taylor1, :TaylorInf]
 is_renorm = true
 # is_renorm = false
 Mhj0 = zeros(njML0)
-MhsKMM0!(Mhj0,jvecL0,naiL0,uaiL0,vthiL0,nModL0;is_renorm=is_renorm,mathtype=mathtype)
+MhsKMM0!(Mhj0,jvecL0,naiL0,uaiL0,vthiL0,nModL0;is_renorm=is_renorm,rtol_OrjL=rtol_OrjL,mathtype=mathtype)
 
 # println()
 # Msnnt = zeros(njML0)
@@ -76,13 +76,13 @@ if 1 == 1
         Mhr0s = naiLt0
 
         Mhr2s = naiLt0 .* (vthiLt0.^2 + CjLk(2,1) * uaiLt0.^2)
-        # @show Mhj0[2] - sum(Mhr2s)
-        # @show sum(Mhr2s), Mhr2s
+        # @show Mhj0[2] - sum_kbn(Mhr2s)
+        # @show sum_kbn(Mhr2s), Mhr2s
 
         Or40 = zeros(nModL0)
         Orj0Nb!(Or40,(uaiLt0./vthiLt0).^2,4,2,nModL0;rtol_OrjL=rtol_OrjL)
         Mhr4s = (naiLt0 .* (vthiLt0).^4) .* (1 .+ Or40)
-        # @show Mhj0[3] - sum(Mhr4s)
+        # @show Mhj0[3] - sum_kbn(Mhr4s)
         uhh2 = 1.5 * (2.5 * ((Mhr2s ./ Mhr0s).^2 - (Mhr4s ./ Mhr0s))).^0.5
 
         println("//////////////////////////////")
@@ -118,13 +118,13 @@ if 1 == 1
         #     end
             vthio = xfit[3:3:end]
             Mhj0o = zeros(njML0)
-            MhsKMM0!(Mhj0o,jvecL0,naio,uaio,vthio,nModL0;is_renorm=is_renorm,mathtype=mathtype)
+            MhsKMM0!(Mhj0o,jvecL0,naio,uaio,vthio,nModL0;is_renorm=is_renorm,rtol_OrjL=rtol_OrjL,mathtype=mathtype)
             
         # end
         println()
         @show is_C, is_re_seed, is_Jacobian, RDnuT
-        @show fmt2(sum(naio) - 1.0)
-        @show fmt2(sum(naio .* uaio .^2) / sum(naiL0 .* uaiL0 .^2) - 1.0)
+        @show fmt2(sum_kbn(naio) - 1.0)
+        @show fmt2(sum_kbn(naio .* uaio .^2) / sum_kbn(naiL0 .* uaiL0 .^2) - 1.0)
         @show fmt2.(Mhj0o[1:3nModL0] ./ Mhj0[1:3nModL0] .- 1)
         @show fmt2.(naio ./ naiL0 .- 1)
         @show fmt2.(abs.(uaio ./ uaiL0) .- 1)
@@ -168,13 +168,13 @@ if 1 == 1
         #     end
             vthio = xfit[3:3:end]
             Mhj0o = zeros(njML0)
-            MhsKMM0!(Mhj0o,jvecL0,naio,uaio,vthio,nModL0;is_renorm=is_renorm,mathtype=mathtype)
+            MhsKMM0!(Mhj0o,jvecL0,naio,uaio,vthio,nModL0;is_renorm=is_renorm,rtol_OrjL=rtol_OrjL,mathtype=mathtype)
             
         # end
         println()
         @show is_C, is_re_seed, is_Jacobian, RDnuT
-        @show fmt2(sum(naio) - 1.0)
-        @show fmt2(sum(naio .* uaio .^2) / sum(naiL0 .* uaiL0 .^2) - 1.0)
+        @show fmt2(sum_kbn(naio) - 1.0)
+        @show fmt2(sum_kbn(naio .* uaio .^2) / sum_kbn(naiL0 .* uaiL0 .^2) - 1.0)
         @show fmt2.(Mhj0o[1:3nModL0] ./ Mhj0[1:3nModL0] .- 1)
         @show fmt2.(naio ./ naiL0 .- 1)
         @show fmt2.(abs.(uaio ./ uaiL0) .- 1)

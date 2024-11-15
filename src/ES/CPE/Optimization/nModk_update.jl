@@ -19,7 +19,7 @@ function nMod_update!(is_nMod_renew::Vector{Bool},
         nModel = nMod[isp]
         if  nModel ≥ 2
             if norm(uaik[isp]) ≤ epsT10
-                # @show sum(naik[isp][1:nMod[isp]] .* vthik[isp][1:nMod[isp]].^2)
+                # @show sum_kbn(naik[isp][1:nMod[isp]] .* vthik[isp][1:nMod[isp]].^2)
                 is_nMod_renew[isp], naik[isp], vthik[isp], nModel = nMod_update(
                     naik[isp], vthik[isp], nModel;rtol_DnuTi=rtol_DnuTi)
                 if is_nMod_renew[isp]
@@ -51,7 +51,7 @@ function nMod_update(naik::AbstractVector{T}, uaik::AbstractVector{T},
         is_update = is_update_nMod2(uaik, vthik, rtol_DnuTi)
         if is_update
             nModel -= 1
-            return is_update, [1.0], [sum(naik .* uaik)], [1.0], nModel
+            return is_update, [T(1)], [sum_kbn(naik .* uaik)], [T(1)], nModel
         else
             return is_update, naik, uaik, vthik, nModel
         end
@@ -69,12 +69,12 @@ function nMod_update(naik::AbstractVector{T}, uaik::AbstractVector{T},
         is_update[3] = is_update_nMod2(uaik[[i,i1]], vthik[[i,i1]], rtol_DnuTi)
 
         # Dropping the identical spices
-        N1 = sum(is_update)
+        N1 = sum_kbn(is_update)
         if N1 == 0
             return false, naik, uaik, vthik, nModel
         elseif N1 == 3 || N1 == 2
             nModel = 1
-            return true, [1.0], [sum(naik .* uaik)], [1.0], nModel
+            return true, [T(1)], [sum_kbn(naik .* uaik)], [T(1)], nModel
         elseif N1 == 1
             nModel = 2
             if is_update[1]
@@ -122,8 +122,8 @@ function nMod_update(naik::AbstractVector{T}, vthik::AbstractVector{T}, nModel::
         is_update = is_update_nMod2(vthik, rtol_DnuTi)
         if is_update
             nModel -= 1
-            return is_update, [1.0], [1.0], nModel
-            # return is_update, [1.0], [sum(naik .* vthik.^2)], nModel
+            return is_update, [T(1)], [T(1)], nModel
+            # return is_update, [T(1)], [sum_kbn(naik .* vthik.^2)], nModel
         else
             return is_update, naik, vthik, nModel
         end
@@ -141,11 +141,11 @@ function nMod_update(naik::AbstractVector{T}, vthik::AbstractVector{T}, nModel::
         RDvthik[3] = is_update_nMod2(vthik[[i,i1]], rtol_DnuTi)
 
         # Dropping the identical spices
-        if sum(RDvthik .≤ rtol_DnuTi) == 0
+        if sum_kbn(RDvthik .≤ rtol_DnuTi) == 0
             return false, naik, vthik, nModel
         else
             b = sortperm(RDvthik)
-            # @show `Threduce`, sum(naik .* vthik.^2)
+            # @show `Threduce`, sum_kbn(naik .* vthik.^2)
             nModel = 2
             if b[1] == 1
                 i = 1 

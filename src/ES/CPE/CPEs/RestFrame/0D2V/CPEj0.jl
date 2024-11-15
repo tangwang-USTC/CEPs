@@ -53,7 +53,7 @@ function CPEj0!(out::AbstractVector{T}, x::AbstractVector{T}, nMod::Int;
 
     nj += 1
     j = 2
-    Orj0 = CjLk(j,1) * uvth2
+    Orj0 = CjLk(T(j),T(1)) * uvth2
     out[nj] = sum_kbn((nh .* vhth2) .* (1 .+ Orj0)) - Mhst[nj]
 
     nj += 1
@@ -91,7 +91,7 @@ function CPEj0!(out::AbstractVector{T}, x::AbstractVector{T}, nMod::Int, Mhst::A
 
     nj += 1
     j = 2
-    Orj0 = CjLk(j,1) * uvth2
+    Orj0 = CjLk(T(j),T(1)) * uvth2
     out[nj] = sum_kbn((nh .* vhth2) .* (1 .+ Orj0)) - Mhst[nj]
 
     nj += 1

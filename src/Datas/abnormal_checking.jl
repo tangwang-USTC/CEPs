@@ -12,6 +12,6 @@ function is_abnormal_abs(y::AbstractVector{T},scalea09::Real) where{T}
     
     a = abs.(y) .+ epsT
     Na = length(a)
-    a09 = sum(a) / Na 
+    a09 = sum_kbn(a) / Na 
     return a .< (a09 * scalea09), a
 end
