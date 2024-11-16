@@ -8,22 +8,28 @@ include(joinpath(pathroot,"src/ES/ESs.jl"))
 include(joinpath(pathroot,"test/run_collisions/algorithm/modules.jl"))
 include(joinpath(pathroot,"test/run_collisions/paras_alg_optim.jl"))
 
-datatype = BigFloat
-datatype = Float64
-is_change_datatype = true
+# datatype = BigFloat
+# datatype = Float64
+# is_change_datatype = true
 is_change_datatype = false
 
 rtol_OrjL = 1e-14
-RDnuT = -0e-8
+RDnuT = -1e-5
 
 is_re_seed = true
-# is_re_seed = false
+is_re_seed = false
 is_show_nuTi = false
-is_optim =  false
 is_optim =  true
+        
+is_C = true 
+# is_C = false 
 
 is_norm_uhL = true
 # is_norm_uhL = false
+        
+    is_Jacobian = true
+    # is_Jacobian = false
+
 nModL = 3         # when `L` is odd number, the optimization is more challenge!
 if nModL == 3
     naiLok = datatype.([0.4429805367270422470174924231902531025012880842972989134553914903140590230558192
@@ -35,6 +41,10 @@ if nModL == 3
     vthiLok = datatype.([2.172107436802767216842088574135748210446180805776723195502077652793266120892492
             0.3964075780707377171697420092387201548468603708624627768275445691579439979825734
             0.4314849851264950659881694166255316347069588233608140276703777780487898811249299])
+    
+    naiL = deepcopy(naiLok)
+    uaiL = deepcopy(uaiLok)
+    vthiL = deepcopy(vthiLok)
 end
 
 njL = 3 * nModL

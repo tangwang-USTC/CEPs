@@ -262,7 +262,8 @@ function CPEjLC!(out::AbstractVector{T}, x::AbstractVector{T}, uhLN::T, L::Int;
         else
             uh[2] = sign(M1jL[1]) * (uhr2)^0.5
         end
-        # nh[nMod] * (uhLN^2 / uhr2) ^(L/2)
+
+        # `nh[nMod] *= (uhLN^2 / uhr2) ^(L/2)`. However, `M1jL[1]` without the normalization coefficient, `uhLN^L`. Checking the Jacobian matrix `JV` given by `jacobrL.jl`.
         if is_norm_uhL
             if abs(M1jL[1]) ≤ rtol_Mh
                 if abs(uh[2]) ≤ rtol_Mh
@@ -322,6 +323,8 @@ function CPEjLC!(out::AbstractVector{T}, x::AbstractVector{T}, uhLN::T, L::Int;
         vhth2[2] = M1jL[2] - T(1)/(T(L)+1.5) * uhr2
         vhth[2] = √(vhth2[2])
         uvth2[2] = uhr2 / vhth2[2]
+
+        # uhL[nMod]
         if is_norm_uhL
             if L == 1
                 uhL[2] = (uh[2] / uhLN)

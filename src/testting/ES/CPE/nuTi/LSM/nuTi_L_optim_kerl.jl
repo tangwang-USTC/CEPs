@@ -37,9 +37,9 @@ if 1 == 1
         @show fmtf2.([uhLN,uhLN^L])
     end
     if is_converged
-            printstyled("((is_norm_uhL, niter), xssr,factor)=",((is_norm_uhL, niter), fmt2(xssr),factor);color=:green)
+            printstyled("((is_re_seed, niter), xssr,factor)=",((is_re_seed, niter), fmt2(xssr),factor);color=:green)
     else
-            printstyled("((is_norm_uhL, niter), xssr,factor)=",((is_norm_uhL, niter), fmt2(xssr),factor);color=:red)
+            printstyled("((is_re_seed, niter), xssr,factor)=",((is_re_seed, niter), fmt2(xssr),factor);color=:red)
     end
     # if is_converged
         naio = xfit[1:3:end]
@@ -53,13 +53,15 @@ if 1 == 1
                 is_norm_uhL=is_norm_uhL,rtol_OrjL=rtol_OrjL,mathtype=mathtype)
         
         RDn = Float64.(sum_kbn(naio) - 1.0)
-        RDTT = Float64.(sum_kbn(naio .* vthio .^2) / sum_kbn(naiL .* vthiL .^2) - 1.0)
+        RDTT0 = (sum_kbn(naio .* vthio .^2) / sum_kbn(naiL .* vthiL .^2) - 1.0)
+        RDTT = Float64.(RDTT0)
         RDEk = Float64.(sum_kbn(naio .* uaio .^2) / sum_kbn(naiL .* uaiL .^2) - 1.0)
         RDMs = Float64.(MhjLo[1:3nModL] ./ MhjL[1:3nModL] .- 1)
     # end
     println()
-    @show is_C, is_re_seed, is_Jacobian, RDnuT
+    @show Int.([is_C, is_norm_uhL, is_Jacobian]), RDnuT
     @show fmt2.(RDMs)
+    @show RDTT0
     if is_anasys_L
         if iseven(L)
             inLp = L / 2 + 1 |> Int

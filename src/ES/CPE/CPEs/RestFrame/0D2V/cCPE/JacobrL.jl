@@ -61,21 +61,24 @@ function JacobC0D2V!(J::AbstractArray{T,N},DM1RjL::AbstractVector{T},
     # j = L + 4
     DM1RjL[:] = DM1RjLC0D2V(ar4L,M1jL[3],arLL)           # M1LL * DM1R4L
     J[2,:] -= DM1RjL
+
+    # if is_norm_uhL
+    #   CDx *= uhLN^L
+    # end
     J[2,:] *= (CDx / M1jL[1])
+    # J[2,1] *= uhLN^L
   
-    # DrLn1, DrLT1
-    if is_norm_uhL
-      # uhLNL = uhLN^L
-      # J[2,1] *= uhLNL
-      if L == 111
-        J[1,:] = - (arLL + J[2,:] * M1jL[1] / uh1) * (uhLN / uh1)
-        J[3,:] -= 0.8 * uh1 * J[2,:]
-      else
-        J[1,:] = - (arLL + L * J[2,:] * M1jL[1] / uh1) * (uhLN / uh1)^L
-        J[3,:] -= 4 / (2L+T(3)) * uh1 * J[2,:]
-      end
-      # J[3,1] *= uhLNL
-    else
+    # # DrLn1, DrLT1
+    # if is_norm_uhL == 8
+    #   # uhLNL = uhLN^L
+    #   if L == 111
+    #     J[1,:] = - (arLL + J[2,:] * M1jL[1] / uh1) * (uhLN / uh1)
+    #     J[3,:] -= 0.8 * uh1 * J[2,:]
+    #   else
+    #     J[1,:] = - (arLL + L * J[2,:] * M1jL[1] / uh1) * (uhLN / uh1)^L
+    #     J[3,:] -= 4 / (2L+T(3)) * uh1 * J[2,:]
+    #   end
+    # else
       if L == 111
         J[1,:] = - (arLL + J[2,:] * M1jL[1] / uh1) / uh1L
         J[3,:] -= 0.8 * uh1 * J[2,:]
@@ -83,13 +86,29 @@ function JacobC0D2V!(J::AbstractArray{T,N},DM1RjL::AbstractVector{T},
         J[1,:] = - (arLL + L * J[2,:] * M1jL[1] / uh1) / uh1L
         J[3,:] -= 4 / (2L+T(3)) * uh1 * J[2,:]
       end
-    end
+    # end
     J[3,:] /= (2 * vhth1)
-    J[2:2,:] *= uhLN^L
+    if is_norm_uhL
+      # J[:,:] *= uhLN^L
+      J[2:3,:] *= uhLN^L
+      # J[3,:] *= uhLN^L
+      # J[3,1] *= uhLN^L
+    end
   end
-  # @show is_norm_uhL, fmt2(uhLN), is_C, is_Jacobian
+  # when `M1LL *= 1`
+  # 1. `J[:,:] *= 1`  ->  false
+  # 2. `J[:,:] *= uhLN^L`  ->  false
+  # 3. `J[1,:] *= 1`, `J[2:3,:] *= uhLN^L`  ->  ok
+  # 4. `J[1,:] *= 1`, `J[2:3,1] *= uhLN^L`  ->  false
+  # 5. `J[1,:] *= uhLN^L`, `J[2:3,:] *= 1`  ->  false
+  # 6. `J[1,:] *= 1`, `CDx *= uhLN^L`, `J[3,:] *= uhLN^L  ->  false
+  # 7. `J[1,:] *= uhLN^L`, `J[3,:] *= uhLN^L  ->  false
+  # 8. `J[1,:] *= 1`, `J[2,1] *= uhLN^L, `J[3,1] *= uhLN^L  ->  false
+
+  # @show is_C, is_norm_uhL, is_Jacobian , fmt2(uhLN)       
   # @show fmt2.(J)
   # @show Float64.(J)
+  # @show fmtf2.([maximum(abs.(J)),cond(J)])
   # jhhggfg
 end
 

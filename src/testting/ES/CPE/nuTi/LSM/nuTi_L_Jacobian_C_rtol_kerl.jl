@@ -126,16 +126,16 @@ if is_optim
         rtol_Mh = 1e-15 |> datatype
         
         is_show_Dc = false
+        # is_show_Dc = true
         println("........................................................................")
 
-        # is_C = false   
+        is_C = false   
 
-        # is_Jacobian = false
-        # include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_optim_kerl.jl"))
+        is_Jacobian = false
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_optim_kerl.jl"))
         
-        # is_Jacobian = true
-        # # is_show_Dc = true
-        # include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_optim_kerl.jl"))
+        is_Jacobian = true
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_optim_kerl.jl"))
         
         
         is_C = true 
@@ -144,8 +144,9 @@ if is_optim
         is_Jacobian = false
         include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_optim_kerl.jl"))
         
-        # is_show_Dc = true
-        # is_Jacobian = true
-        # include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_optim_kerl.jl"))
+        is_show_Dc = true
+        is_Jacobian = true
+        include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_optim_kerl.jl"))
         
+        @warn("Please checking the keyword parameters of optimization, `is_C`, `is_norm_uhL`, and `is_Jacobian`, respectively.")
 end
