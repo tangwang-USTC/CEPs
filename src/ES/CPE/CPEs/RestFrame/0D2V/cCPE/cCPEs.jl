@@ -5,8 +5,12 @@ include("ddcMhrjL.jl")
 include("ddcMhjL.jl")
 include("JacobrL.jl")
 
+include("CPEj0C!.jl")
+include("CPEj1C!.jl")
+include("CPEjLC!.jl")
+
 include("CPEj0C.jl")
-include("CPEj1C.jl")
+# include("CPEj1C.jl")
 include("CPEjLC.jl")
 
 

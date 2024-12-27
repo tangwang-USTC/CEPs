@@ -34,9 +34,12 @@ is_norm_uhL = true
         
     is_Jacobian = true
     # is_Jacobian = false
+    is_Hessian = false
+    is_constraint = false
+    is_bs = false
 
 nModL = 3         # when `nMod` is larger, the optimization is more challenge! 
-if nModL == -3
+if nModL == 3
     datatype = BigFloat
     # is_C = 1, is_norm_uhL = 1, is_Jacobian = 0, |RDnuT| ≤ 1e-7: LM → 30
     # naiLok, uaiLok, vthiLok = zeros(datatype, nModL), zeros(datatype, nModL), zeros(datatype, nModL)
@@ -50,9 +53,9 @@ if nModL == -3
                1.252233464458821633635706942390328219526258404106801329475552569693692044992016
                0.3983161589990016233652755840738502549135345962480762398094463190034895275138406])
 
-    # naiL = deepcopy(naiLok)
-    # uaiL = deepcopy(uaiLok)
-    # vthiL = deepcopy(vthiLok)
+    naiL = deepcopy(naiLok)
+    uaiL = deepcopy(uaiLok)
+    vthiL = deepcopy(vthiLok)
 end
 njL = 3 * nModL
 

@@ -20,16 +20,20 @@ if 1 == 1
     if is_C
             xssr, is_converged, xfit, niter = optimMhjLC!(naiLt0,uaiLt0,vthiLt0,Mhj0,L,nModL0,NL_solve,DMh024;
                     rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh,
+                    NL_solve_method=NL_solve_method,ADtype=ADtype,
+                    is_Jacobian=is_Jacobian, is_Hessian=is_Hessian, is_constraint=is_constraint,
                     optimizer=optimizer,factor=factor,autodiff=autodiff,
-                    is_Jacobian=is_Jacobian,show_trace=show_trace,maxIterKing=maxIterKing,
-                    p_tol=p_tol,f_tol=f_tol,g_tol=g_tol,NL_solve_method=NL_solve_method,
+                    show_trace=show_trace, maxIterKing=maxIterKing,
+                    x_tol=x_tol,f_tol=f_tol,g_tol=g_tol,
                     Nspan_optim_nuTi=Nspan_optim_nuTi)
     else
             xssr, is_converged, xfit, niter = optimMhjL!(naiLt0,uaiLt0,vthiLt0,Mhj0,L,nModL0,NL_solve,DMh024;
                     rtol_OrjL=rtol_OrjL,
+                    NL_solve_method=NL_solve_method,ADtype=ADtype,
+                    is_Jacobian=is_Jacobian, is_Hessian=is_Hessian, is_constraint=is_constraint,
                     optimizer=optimizer,factor=factor,autodiff=autodiff,
-                    is_Jacobian=is_Jacobian,show_trace=show_trace,maxIterKing=maxIterKing,
-                    p_tol=p_tol,f_tol=f_tol,g_tol=g_tol,NL_solve_method=NL_solve_method,
+                    show_trace=show_trace, maxIterKing=maxIterKing,
+                    x_tol=x_tol,f_tol=f_tol,g_tol=g_tol,
                     Nspan_optim_nuTi=Nspan_optim_nuTi)
     end
     

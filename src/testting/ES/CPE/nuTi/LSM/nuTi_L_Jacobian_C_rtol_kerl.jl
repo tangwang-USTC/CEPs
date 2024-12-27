@@ -12,6 +12,9 @@ show_trace = false
 # factor = LeastSquaresOptim.LSMR()                       # 最差
 
 # is_Jacobian = true                                       # maybe not be conservative when `RDnuT` is bigger enough
+# # is_Jacobian = false
+# is_Hessian = false
+# is_constraint = false
 # is_re_seed = false
 # is_re_seed = true
 

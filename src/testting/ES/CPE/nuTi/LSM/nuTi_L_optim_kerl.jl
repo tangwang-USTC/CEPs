@@ -18,28 +18,35 @@ if 1 == 1
     # println("//////////////////////////////")
     # @show Mhr0s[nModL],Mhr2s[nModL],Mhr4s[nModL] 
     if is_C
-            xssr, is_converged, xfit, niter = optimMhjLC!(naiLt0,uaiLt0,vthiLt0,uhLN,MhjL,L,nModL,NL_solve,DMh024;
-                    is_norm_uhL=is_norm_uhL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh,
-                    optimizer=optimizer,factor=factor,autodiff=autodiff,
-                    is_Jacobian=is_Jacobian,show_trace=show_trace,maxIterKing=maxIterKing,
-                    p_tol=p_tol,f_tol=f_tol,g_tol=g_tol,NL_solve_method=NL_solve_method,
+            xssr, is_converged, xfit, niter = optimMhjLC!(naiLt0,uaiLt0,vthiLt0,uhLN,MhjL,L,nModL,DMh024;
+                    atol_Mh=atol_Mh,rtol_Mh=rtol_Mh,NL_solve=NL_solve,
+                    Optlibary=Optlibary,NL_solve_method=NL_solve_method,optimizer=optimizer,
+                    linsolve=linsolve,linesearch=linesearch,preconditioner=preconditioner,ADtype=ADtype, 
+                    is_norm_uhL=is_norm_uhL,is_Jacobian=is_Jacobian,is_Hessian=is_Hessian,is_AD=is_AD,
+                    is_constraint=is_constraint,is_MTK=is_MTK,is_simplify=is_simplify,is_bs=is_bs,
+                    numMultistart=numMultistart,uhMax=uhMax,vhthMin=vhthMin,vhthMax=vhthMax,
+                    maxIterKing=maxIterKing,rtol_OrjL=rtol_OrjL,show_trace=show_trace, 
+                    x_tol=x_tol,f_tol=f_tol,g_tol=g_tol,
                     Nspan_optim_nuTi=Nspan_optim_nuTi)
     else
-            xssr, is_converged, xfit, niter = optimMhjL!(naiLt0,uaiLt0,vthiLt0,uhLN,MhjL,L,nModL,NL_solve,DMh024;
-                    is_norm_uhL=is_norm_uhL,rtol_OrjL=rtol_OrjL,
-                    optimizer=optimizer,factor=factor,autodiff=autodiff,
-                    is_Jacobian=is_Jacobian,show_trace=show_trace,maxIterKing=maxIterKing,
-                    p_tol=p_tol,f_tol=f_tol,g_tol=g_tol,NL_solve_method=NL_solve_method,
+            xssr, is_converged, xfit, niter = optimMhjL!(naiLt0,uaiLt0,vthiLt0,uhLN,MhjL,L,nModL,DMh024;
+                    NL_solve=NL_solve,Optlibary=Optlibary,NL_solve_method=NL_solve_method,optimizer=optimizer,
+                    linsolve=linsolve,linesearch=linesearch,preconditioner=preconditioner,ADtype=ADtype, 
+                    is_norm_uhL=is_norm_uhL,is_Jacobian=is_Jacobian,is_Hessian=is_Hessian,is_AD=is_AD,
+                    is_constraint=is_constraint,is_MTK=is_MTK,is_simplify=is_simplify,is_bs=is_bs,
+                    numMultistart=numMultistart,uhMax=uhMax,vhthMin=vhthMin,vhthMax=vhthMax,
+                    maxIterKing=maxIterKing,rtol_OrjL=rtol_OrjL,show_trace=show_trace, 
+                    x_tol=x_tol,f_tol=f_tol,g_tol=g_tol,
                     Nspan_optim_nuTi=Nspan_optim_nuTi)
     end
     @show L
     if is_norm_uhL
         @show fmtf2.([uhLN,uhLN^L])
     end
-    if is_converged
-            printstyled("((is_re_seed, niter), xssr,factor)=",((is_re_seed, niter), fmt2(xssr),factor);color=:green)
+    if xssr < 1e-7
+            printstyled("((is_re_seed, niter), xssr,linsolve)=",((is_re_seed, niter), fmt2(xssr),linsolve);color=:green)
     else
-            printstyled("((is_re_seed, niter), xssr,factor)=",((is_re_seed, niter), fmt2(xssr),factor);color=:red)
+            printstyled("((is_re_seed, niter), xssr,linsolve)=",((is_re_seed, niter), fmt2(xssr),linsolve);color=:red)
     end
     # if is_converged
         naio = xfit[1:3:end]

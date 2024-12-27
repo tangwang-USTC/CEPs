@@ -34,7 +34,7 @@
     M1jL := [M1LL, RM12L, RM14L]
 
   Outputs:
-    CPEj1C!(out, x, uhLN, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,M1jL=M1jL,
+    CPEj1C!(out,x,uhLN, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,M1jL=M1jL,
                 rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
 
 """
@@ -48,7 +48,7 @@ function CPEj1C!(out::AbstractVector{T}, x::AbstractVector{T}, uhLN::T, nMod::In
     is_norm_uhL::Bool=true,rtol_OrjL::T=1e-10,atol_Mh::T=1e-10,rtol_Mh::T=1e-10) where{T}
 
     if nMod == 22
-      CPEj1C!(out, x, uhLN;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,
+      CPEj1C!(out,x,uhLN;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,
               M1jL=M1jL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
     else
       vec = 1:nMod-1
@@ -216,7 +216,7 @@ end
     OrnL = zeros(T,3)                  # = [Or0L, Or2L, Or4L]
 
   Outputs:
-    JacobCPEj1C!(JM, x, uhLN, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
+    JacobCPEj1C!(JM,x,uhLN, nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
                 DMjL=DMjL,J=J,DM1RjL=DM1RjL,vth1jL=vth1jL,vthijL=vthijL,Vn1L=Vn1L,VnrL=VnrL,M1jL=M1jL,
                 crjL=crjL,arLL=arLL,ar2L=ar2L,ar4L=ar4L,O1jL2=O1jL2,O1jL=O1jL,
                 OrnL2=OrnL2,OrnL=OrnL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)
@@ -239,7 +239,7 @@ function JacobCPEj1C!(JM::AbstractArray{T,N2}, x::AbstractVector{T}, uhLN::T, nM
     is_norm_uhL::Bool=true,rtol_OrjL::T=1e-10,atol_Mh::T=1e-10,rtol_Mh::T=1e-10) where{T,N2}
 
     if nMod == 22
-      JacobCPEj1C!(JM, x, uhLN;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
+      JacobCPEj1C!(JM,x,uhLN;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
                   DMjL=DMjL,J=J,DM1RjL=DM1RjL,vth1jL=vth1jL,vthijL=vthijL,Vn1L=Vn1L,VnrL=VnrL,M1jL=M1jL,
                   crjL=crjL,arLL=arLL,ar2L=ar2L,ar4L=ar4L,O1jL2=O1jL2,O1jL=O1jL,
                   OrnL2=OrnL2,OrnL=OrnL,rtol_OrjL=rtol_OrjL,atol_Mh=atol_Mh,rtol_Mh=rtol_Mh)

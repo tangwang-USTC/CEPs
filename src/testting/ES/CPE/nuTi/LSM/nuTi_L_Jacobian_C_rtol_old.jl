@@ -29,6 +29,9 @@ is_norm_uhL = true
         
     is_Jacobian = true
     # is_Jacobian = false
+    is_Hessian = false
+    is_constraint = false
+    is_bs = false
 
 nModL = 3         # when `L` is odd number, the optimization is more challenge!
 if nModL == 3
