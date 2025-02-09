@@ -24,7 +24,7 @@ if 1 == 1
                     linsolve=linsolve,linesearch=linesearch,preconditioner=preconditioner,ADtype=ADtype, 
                     is_norm_uhL=is_norm_uhL,is_Jacobian=is_Jacobian,is_Hessian=is_Hessian,is_AD=is_AD,
                     is_constraint=is_constraint,is_MTK=is_MTK,is_simplify=is_simplify,is_bs=is_bs,
-                    numMultistart=numMultistart,uhMax=uhMax,vhthMin=vhthMin,vhthMax=vhthMax,
+                    Ncons=Ncons,numMultistart=numMultistart,uhMax=uhMax,vhthMin=vhthMin,vhthMax=vhthMax,
                     maxIterKing=maxIterKing,rtol_OrjL=rtol_OrjL,show_trace=show_trace, 
                     x_tol=x_tol,f_tol=f_tol,g_tol=g_tol,
                     Nspan_optim_nuTi=Nspan_optim_nuTi)
@@ -34,7 +34,7 @@ if 1 == 1
                     linsolve=linsolve,linesearch=linesearch,preconditioner=preconditioner,ADtype=ADtype, 
                     is_norm_uhL=is_norm_uhL,is_Jacobian=is_Jacobian,is_Hessian=is_Hessian,is_AD=is_AD,
                     is_constraint=is_constraint,is_MTK=is_MTK,is_simplify=is_simplify,is_bs=is_bs,
-                    numMultistart=numMultistart,uhMax=uhMax,vhthMin=vhthMin,vhthMax=vhthMax,
+                    Ncons=Ncons,numMultistart=numMultistart,uhMax=uhMax,vhthMin=vhthMin,vhthMax=vhthMax,
                     maxIterKing=maxIterKing,rtol_OrjL=rtol_OrjL,show_trace=show_trace, 
                     x_tol=x_tol,f_tol=f_tol,g_tol=g_tol,
                     Nspan_optim_nuTi=Nspan_optim_nuTi)
@@ -68,7 +68,7 @@ if 1 == 1
     println()
     @show Int.([is_C, is_norm_uhL, is_Jacobian]), RDnuT
     @show fmt2.(RDMs)
-    @show RDTT0
+    # @show RDTT0
     if is_anasys_L
         if iseven(L)
             inLp = L / 2 + 1 |> Int

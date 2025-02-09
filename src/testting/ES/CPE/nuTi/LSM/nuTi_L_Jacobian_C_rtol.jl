@@ -1,15 +1,15 @@
 
 using Plots,DataFrames,CSV,Format,OhMyREPL
 using ModelingToolkit
-using Optimization, OptimizationOptimJL, Optim
-using Enzyme
+using Optimization, OptimizationOptimJL, OptimizationManopt
+using OptimizationMOI, Ipopt
+using Optim
+# using Enzyme
+using Zygote
+using ReverseDiff
+# using Tracker
 
 pathroot = "C:/Users/Administrator/.julia/pkgGithub/CPEs"
-
-include(joinpath(pathroot,"Mathematics/maths.jl"))
-include(joinpath(pathroot,"src/ES/ESs.jl")) 
-include(joinpath(pathroot,"test/run_collisions/algorithm/modules.jl"))
-include(joinpath(pathroot,"test/run_collisions/paras_alg_optim.jl"))
 
 datatype = BigFloat
 datatype = Float64
@@ -17,7 +17,7 @@ is_change_datatype = true
 # is_change_datatype = false
 
 rtol_OrjL = 1e-14
-RDnuT = -1e-6
+RDnuT = 1e-8
 
 is_re_seed = true
 # is_re_seed = false
@@ -25,25 +25,39 @@ is_show_nuTi = false
 is_optim =  true
 
         
-is_C = true 
-is_C = false 
+is_C = true                     # Whether utilizing the the model with hard constraints (rigid constraints)
+is_C = false                    
 
 is_norm_uhL = true
 # is_norm_uhL = false
         
-    is_Jacobian = true
+    is_Jacobian = true          # (=true, default) Whether Jacobian matrix will be used to improve the performance of the optimizations.
     is_Jacobian = false
     is_Hessian = false
-    is_constraint = true
-    is_bs = true
-    is_MTK = true
+
+    is_constraint = true        # Whether utilizing the the model with soft constraints
+    is_constraint = false
+
+    is_bs = true                # Fminbox constraints, however, it is not necessarily conducive to the convergence of the solution
+    is_bs = false
+
+    is_MTK = false
     is_simplify = true
     is_AD = true
     numMultistart = 1  |> Int
+    Ncons = 3  |> Int
+
 
     numMultistart ≥ 1 || ArgumentError("numMultistart must not be less than 1")
+    Ncons ≥ 1 || (is_constraint = false)
 
-nModL = 3
+    include(joinpath(pathroot,"Mathematics/maths.jl"))
+    include(joinpath(pathroot,"src/ES/ESs.jl")) 
+    include(joinpath(pathroot,"test/run_collisions/algorithm/modules.jl"))
+    include(joinpath(pathroot,"test/run_collisions/paras_alg_optim.jl"))
+
+
+nModL = 2
 njL = 3 * nModL
 is_anasys_L = false
 
@@ -97,3 +111,7 @@ else
     L = 9
     include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_Jacobian_C_rtol_kerl.jl"))
 end
+
+@show NL_solve,Optlibary,optimizer,ADtype, (is_MTK,is_C,Ncons,is_constraint,is_bs)
+
+1

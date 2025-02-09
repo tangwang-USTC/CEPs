@@ -134,5 +134,5 @@ if is_optim
 
         include(joinpath(pathroot,"src/testting/ES/CPE/nuTi/LSM/nuTi_L_optim_kerl.jl"))
         
-        @warn("Checking keywords of optimization, `is_C`, `is_norm_uhL`, `is_constraint`, `is_bs` and `is_Jacobian`, respectively.")
+        # @warn("Checking keywords of optimization, `is_C`, `is_norm_uhL`, `is_constraint`, `is_bs` and `is_Jacobian`, respectively.")
 end

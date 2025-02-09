@@ -32,7 +32,7 @@
                 linsolve=linsolve,linesearch=linesearch,preconditioner=preconditioner,ADtype=ADtype, 
                 is_norm_uhL=is_norm_uhL,is_Jacobian=is_Jacobian,is_Hessian=is_Hessian,is_AD=is_AD,
                 is_constraint=is_constraint,is_MTK=is_MTK,is_simplify=is_simplify,is_bs=is_bs,
-                numMultistart=numMultistart,uhMax=uhMax,vhthMin=vhthMin,vhthMax=vhthMax,
+                Ncons=Ncons,numMultistart=numMultistart,uhMax=uhMax,vhthMin=vhthMin,vhthMax=vhthMax,
                 maxIterKing=maxIterKing,rtol_OrjL=rtol_OrjL,show_trace=show_trace, 
                 x_tol=x_tol,f_tol=f_tol,g_tol=g_tol,
                 Nspan_optim_nuTi=Nspan_optim_nuTi)
@@ -46,7 +46,7 @@ function optimMhjL!(nai::AbstractVector{T}, uai::AbstractVector{T}, vthi::Abstra
     linsolve=:qr, linesearch=nothing, preconditioner=nothing, ADtype=AutoEnzyme(),
     is_norm_uhL::Bool=true, is_Jacobian::Bool=true, is_Hessian::Bool=true, is_AD::Bool=true, 
     is_constraint::Bool=false, is_MTK::Bool=true, is_simplify::Bool=true, is_bs::Bool=true, 
-    numMultistart::Int=1, uhMax::T=-3.0, vhthMin::T=1e-2, vhthMax::T=100, 
+    Ncons::Int=1, numMultistart::Int=1, uhMax::T=-3.0, vhthMin::T=1e-2, vhthMax::T=100, 
     maxIterKing::Int=200, rtol_OrjL::T=1e-10, show_trace::Bool=false, 
     x_tol::Float64=epsT, f_tol::Float64=epsT, g_tol::Float64=epsT,
     Nspan_optim_nuTi::AbstractVector{T}=[1.1,1.1,1.1]) where {T}
@@ -66,7 +66,8 @@ function optimMhjL!(nai::AbstractVector{T}, uai::AbstractVector{T}, vthi::Abstra
                     NL_solve=NL_solve,Optlibary=Optlibary,NL_solve_method=NL_solve_method,optimizer=optimizer,
                     linsolve=linsolve,linesearch=linesearch,preconditioner=preconditioner,ADtype=ADtype, 
                     is_norm_uhL=is_norm_uhL,is_Jacobian=is_Jacobian,is_Hessian=is_Hessian,is_AD=is_AD,
-                    is_constraint=is_constraint,is_simplify=is_simplify,is_bs=is_bs,numMultistart=numMultistart,
+                    is_constraint=is_constraint,is_simplify=is_simplify,is_bs=is_bs,
+                    Ncons=Ncons,numMultistart=numMultistart,
                     maxIterKing=maxIterKing,rtol_OrjL=rtol_OrjL,show_trace=show_trace, 
                     x_tol=x_tol,f_tol=f_tol,g_tol=g_tol)
             else
@@ -76,7 +77,8 @@ function optimMhjL!(nai::AbstractVector{T}, uai::AbstractVector{T}, vthi::Abstra
                     NL_solve=NL_solve,Optlibary=Optlibary,NL_solve_method=NL_solve_method,optimizer=optimizer,
                     linsolve=linsolve,linesearch=linesearch,preconditioner=preconditioner,ADtype=ADtype, 
                     is_norm_uhL=is_norm_uhL,is_Jacobian=is_Jacobian,is_Hessian=is_Hessian,is_AD=is_AD,
-                    is_constraint=is_constraint,is_MTK=is_MTK,is_bs=is_bs,numMultistart=numMultistart,
+                    is_constraint=is_constraint,is_MTK=false,is_bs=is_bs,
+                    Ncons=Ncons,numMultistart=numMultistart,
                     maxIterKing=maxIterKing,rtol_OrjL=rtol_OrjL,show_trace=show_trace, 
                     x_tol=x_tol,f_tol=f_tol,g_tol=g_tol)
             end
@@ -124,42 +126,54 @@ end
                 Optlibary=Optlibary,NL_solve_method=NL_solve_method,optimizer=optimizer,
                 linsolve=linsolve,linesearch=linesearch,preconditioner=preconditioner,ADtype=ADtype, 
                 is_norm_uhL=is_norm_uhL,is_Jacobian=is_Jacobian,is_Hessian=is_Hessian,is_AD=is_AD,
-                is_constraint=is_constraint,is_MTK=is_MTK,is_bs=is_bs,numMultistart=numMultistart,
+                is_constraint=is_constraint,is_MTK=is_MTK,is_bs=is_bs,
+                Ncons=Ncons,numMultistart=numMultistart,
                 maxIterKing=maxIterKing,rtol_OrjL=rtol_OrjL,show_trace=show_trace, 
                 x_tol=x_tol,f_tol=f_tol,g_tol=g_tol)
     is_converged_nMod = optimMhjL!(xx,x0,uhLN,Mhst,L,nMod;lbs=lbs,ubs=ubs,NL_solve=NL_solve,
                 Optlibary=Optlibary,NL_solve_method=NL_solve_method,optimizer=optimizer,
                 linsolve=linsolve,linesearch=linesearch,preconditioner=preconditioner,ADtype=ADtype, 
                 is_norm_uhL=is_norm_uhL,is_Jacobian=is_Jacobian,is_Hessian=is_Hessian,is_AD=is_AD,
-                is_constraint=is_constraint,is_simplify=is_simplify,is_bs=is_bs,numMultistart=numMultistart,
+                is_constraint=is_constraint,is_simplify=is_simplify,is_bs=is_bs,
+                Ncons=Ncons,numMultistart=numMultistart,
                 maxIterKing=maxIterKing,rtol_OrjL=rtol_OrjL,show_trace=show_trace, 
                 x_tol=x_tol,f_tol=f_tol,g_tol=g_tol)
   
 """
 
-# [nMod]
+# [nMod] 
 function optimMhjL!(x0::AbstractVector{T}, uhLN::T, Mhst::AbstractVector{T}, L::Int, nMod::Int;
     lbs::AbstractVector{T}=[0.1], ubs::AbstractVector{T}=[0.1], NL_solve::Symbol=:Optimization, 
     Optlibary::Symbol=:Optimization, NL_solve_method::Symbol=:newton, optimizer=BFGS, 
     linsolve=:qr, linesearch=nothing, preconditioner=nothing, ADtype=AutoEnzyme(),
     is_norm_uhL::Bool=true, is_Jacobian::Bool=true, is_Hessian::Bool=true, is_AD::Bool=true,
-    is_constraint::Bool=false, is_MTK::Bool=true, is_bs::Bool=false, numMultistart::Int=1,
-    maxIterKing::Int=200, rtol_OrjL::T=1e-10, show_trace::Bool=false, 
-    x_tol::Float64=epsT, f_tol::Float64=epsT, g_tol::Float64=epsT) where {T}
+    is_constraint::Bool=false, is_MTK::Bool=true, is_bs::Bool=false, 
+    Ncons::Int=1, numMultistart::Int=1, maxIterKing::Int=200, rtol_OrjL::T=1e-10, show_trace::Bool=false, 
+    x_tol::Float64=epsT, f_tol::Float64=epsT, g_tol::Float64=epsT) where {T <: Real}
 
     nh,uh,vhth,vhth2,uvth2 = zeros(T,nMod),zeros(T,nMod),zeros(T,nMod),zeros(T,nMod),zeros(T,nMod),zeros(T,nMod)
     
     if NL_solve == :Optimization
         if is_MTK
+            @variables nh[1:3nMod] [bounds = (0.0, 1.0)]
+            @variables uh[1:3nMod] [bounds = (- uhMax, uhMax)]
+            @variables Th[1:3nMod] [bounds = (vhthMin, vhthMax)]
+            cons = consMhjLeqs(nh,uh,Th)
+            @named optsys = OptimizationSystem()
         else
-            out = zeros(T,3nMod)
-            MhjL_GKMM(x,p=nothing) = CPEjL(x,uhLN,L,nMod;out=out,nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,Mhst=Mhst,
-                                        is_norm_uhL=is_norm_uhL,rtol_OrjL=rtol_OrjL)
             # Defining the special form for specified solvor with Pkg X.
             if is_constraint
-                cons = [x[1]^2 ≲ 1]
-                yyhyyyy
-                optf = Optimization.OptimizationFunction(MhjL_GKMM,ADtype,cons=cons)
+                Ncons ≥ 1 || throw(ArgumentError("Please specify `1 ≤ Ncons < 3nMod` here."))
+                p = [Ncons; Mhst]
+                # consMhjL!(res,xx,p)
+                lcons = zeros(T,Ncons)
+                ucons = zeros(T,Ncons) 
+
+                MhjLc_GKMM(x,p=nothing) = CPEjL(x,uhLN,L,nMod;Mhst=Mhst,is_norm_uhL=is_norm_uhL)
+                # MhjLc_GKMM(x,p=nothing) = CPEjL(x,uhLN,L,nMod,Ncons;Mhst=Mhst,is_norm_uhL=is_norm_uhL)
+
+                # Defining the objective function `f(x,p)`
+                optf = Optimization.OptimizationFunction(MhjLc_GKMM,ADtype;cons=consMhjL!)
                 if is_Jacobian 
                     if is_AD
                     else
@@ -168,45 +182,47 @@ function optimMhjL!(x0::AbstractVector{T}, uhLN::T, Mhst::AbstractVector{T}, L::
                     end
                     if numMultistart == 1
                         if is_bs 
-                            nls = Optimization.OptimizationProblem(optf,x0,[];lb=lbs,ub=ubs,lcons=lcons,ucons=ucons)
+                            nls = Optimization.OptimizationProblem(optf,x0,p;lb=lbs,ub=ubs,lcons=lcons,ucons=ucons)
                         else
-                            nls = Optimization.OptimizationProblem(optf,x0,[];lcons=lcons,ucons=ucons)
+                            nls = Optimization.OptimizationProblem(optf,x0,p;lcons=lcons,ucons=ucons)
                         end
                     else
                         if is_bs 
-                            nls = Optimization.OptimizationProblem(optf,x0,[];lb=lbs,ub=ubs,lcons=lcons,ucons=ucons)
+                            nls = Optimization.OptimizationProblem(optf,x0,p;lb=lbs,ub=ubs,lcons=lcons,ucons=ucons)
                         else
-                            nls = Optimization.OptimizationProblem(optf,x0,[];lcons=lcons,ucons=ucons)
+                            nls = Optimization.OptimizationProblem(optf,x0,p;lcons=lcons,ucons=ucons)
                         end
                     end
                 else
                     if numMultistart == 1
                         if is_bs 
-                            nls = Optimization.OptimizationProblem(optf,x0,[];lb=lbs,ub=ubs,lcons=lcons,ucons=ucons)
+                            nls = Optimization.OptimizationProblem(optf,x0,p;lb=lbs,ub=ubs,lcons=lcons,ucons=ucons)
                         else
-                            nls = Optimization.OptimizationProblem(optf,x0,[];lcons=lcons,ucons=ucons)
+                            nls = Optimization.OptimizationProblem(optf,x0,p;lcons=lcons,ucons=ucons)
                         end
                     else
                         if is_bs 
-                            nls = Optimization.OptimizationProblem(optf,x0,[];lb=lbs,ub=ubs,lcons=lcons,ucons=ucons)
+                            nls = Optimization.OptimizationProblem(optf,x0,p;lb=lbs,ub=ubs,lcons=lcons,ucons=ucons)
                         else
-                            nls = Optimization.OptimizationProblem(optf,x0,[];lcons=lcons,ucons=ucons)
+                            nls = Optimization.OptimizationProblem(optf,x0,p;lcons=lcons,ucons=ucons)
                         end
                     end
                 end
+                res = solve(nls, optimizer();maxiters=maxIterKing)
             else
+                MhjL_GKMM(x,p=nothing) = CPEjL(x,uhLN,L,nMod;Mhst=Mhst,is_norm_uhL=is_norm_uhL)
                 if is_Jacobian 
-                    if is_bs 
-                        nls = Optimization.OptimizationProblem(optf,x0;lb=lbs,ub=ubs)
-                    else
-                        nls = Optimization.OptimizationProblem(optf,x0)
-                    end
                     if is_AD 
                         optf = Optimization.OptimizationFunction(MhjL_GKMM,ADtype)
                     else
                         gO!(gM,x0,p=nothing) = gacobCPEjL!(gM,x0,uhLN,L,nMod;nh=nh,uh=uh,vhth=vhth,vhth2=vhth2,uvth2=uvth2,
                                                 is_norm_uhL=is_norm_uhL,rtol_OrjL=rtol_OrjL)
                         optf = Optimization.OptimizationFunction(MhjL_GKMM;grad=gO!)
+                    end
+                    if is_bs 
+                        nls = Optimization.OptimizationProblem(optf,x0;lb=lbs,ub=ubs)
+                    else
+                        nls = Optimization.OptimizationProblem(optf,x0)
                     end
                     if numMultistart == 1
                     else
@@ -219,14 +235,14 @@ function optimMhjL!(x0::AbstractVector{T}, uhLN::T, Mhst::AbstractVector{T}, L::
                         else
                             nls = Optimization.OptimizationProblem(optf,x0)
                         end
-                        res = solve(nls, optimizer())
+                        res = solve(nls, optimizer();maxiters=maxIterKing)
                     else
                         if is_bs 
                             nls = Optimization.OptimizationProblem(optf,x0;lb=lbs,ub=ubs)
                         else
                             nls = Optimization.OptimizationProblem(optf,x0)
                         end 
-                        res = solve(nls, optimizer())
+                        res = solve(nls, optimizer();maxiters=maxIterKing)
                         ygygggg
                     end
                 end
@@ -249,7 +265,7 @@ function optimMhjL!(x0::AbstractVector{T}, uhLN::T, Mhst::AbstractVector{T}, L::
         end
         
         if Optlibary == :LeastSquaresOptim
-            res = NonlinearSolve.solve(nls, LeastSquaresOptimJL(optimizer;linsolve=linsolve,autodiff=ADtype))
+            res = NonlinearSolve.solve(nls, LeastSquaresOptimJL(optimizer;linsolve=linsolve,autodiff=ADtype);maxiters=maxIterKing)
         elseif Optlibary == :NonlinearSolve  
         else
         end
@@ -299,6 +315,8 @@ function optimMhjL!(x0::AbstractVector{T}, uhLN::T, Mhst::AbstractVector{T}, L::
             esfgroifrtg
         end
     end
+    # @show res
+    # rrrrr
 
     if NL_solve == :Optimization
         xfit = res.u         # the vector of best model1 parameters
@@ -327,8 +345,8 @@ function optimMhjL!(x0::AbstractVector{T}, uhLN::T, Mhst::AbstractVector{T}, L::
         elseif NL_solve == :JuMP
             fgfgg
         end
-        return xssr, is_converged, xfit, niter
     end
+    return xssr, is_converged, xfit, niter
 end
 
 # `is_MTK=true`
@@ -338,28 +356,61 @@ function optimMhjL!(xx::AbstractVector{Num}, x0::AbstractVector{Pair{Num,T}}, uh
     linsolve=:qr, linesearch=nothing, preconditioner=nothing, ADtype=AutoEnzyme(),
     is_norm_uhL::Bool=true, is_Jacobian::Bool=true, is_Hessian::Bool=true, is_AD::Bool=true,
     is_constraint::Bool=false, is_simplify::Bool=true, is_bs::Bool=false, 
-    numMultistart::Int=1, maxIterKing::Int=200, rtol_OrjL::T=1e-10, show_trace::Bool=false, 
+    Ncons::Int=1, numMultistart::Int=1, maxIterKing::Int=200, rtol_OrjL::T=1e-10, show_trace::Bool=false, 
     x_tol::Float64=epsT, f_tol::Float64=epsT, g_tol::Float64=epsT) where {T}
 
     nh,uh,vhth,vhth2,uvth2 = zeros(T,nMod),zeros(T,nMod),zeros(T,nMod),zeros(T,nMod),zeros(T,nMod),zeros(T,nMod)
     
+    nMod ≥ 2 || throw(ArgumentError("`nMod` must be no less than 2 here."))
     if NL_solve == :Optimization
-        # Defining the objective function `f(x,p)`
-        out = zeros(Num,3nMod)
-        CPEjL!(out,xx,uhLN,L,nMod;Mhst=Mhst,is_norm_uhL=is_norm_uhL,rtol_OrjL=rtol_OrjL)
         # Defining the special form for specified solvor with Pkg X.
         if is_constraint
-            cons = [0 ~ sum(xx[1:3:end] .* xx[2:3:end].^L) - Mhst[1]
-                    0 ~ sum((xx[1:3:end] .* (xx[3:3:end]).^2 .* xx[2:3:end].^L) .* (1 .+ CjLk(2,L,1) * (xx[2:3:end]).^2 ./ (xx[3:3:end]).^2)) - Mhst[2]
-                    0 ~ sum((xx[1:3:end] .* (xx[3:3:end]).^2 .* xx[2:3:end].^L) .* (1 .+ CjLk(4,L,1) * (xx[2:3:end]).^2 ./ (xx[3:3:end]).^2 .+ CjLk(4,L,2) * (xx[2:3:end]).^4 ./ (xx[3:3:end]).^4)) - Mhst[3]]
-            @named optf = OptimizationSystem(sum(abs,out),xx,[];constraints=cons)
-            # @named optf = OptimizationSystem(sum(abs,out),xx,[])
+            # Ncons ≥ 1 || throw(ArgumentError("Please specify `1 ≤ Ncons < 3nMod` here."))
+            # Defining the objective function `f(x,p)`
+            if Ncons == 0
+                cons = [ ]
+                out = zeros(Num,3nMod)
+                CPEjL!(out,xx,uhLN,L,nMod,Ncons;Mhst=Mhst,is_norm_uhL=is_norm_uhL,rtol_OrjL=rtol_OrjL)
+            else
+                # if Ncons == 1
+                #     cons = [0.0 ~ sum(xx[1:3:end] .* xx[2:3:end].^L) - Mhst[1]]
+                # elseif Ncons == 2
+                #     cons = [0.0 ~ sum(xx[1:3:end] .* xx[2:3:end].^L) - Mhst[1]
+                #             0.0 ~ sum((xx[1:3:end] .* (xx[3:3:end]).^2 .* xx[2:3:end].^L) .* (1 .+ CjLk(2,L,1) * (xx[2:3:end]).^2 ./ (xx[3:3:end]).^2)) - Mhst[2]]
+                # elseif Ncons == 3
+                #     cons = [0.0 ~ sum(xx[1:3:end] .* xx[2:3:end].^L) - Mhst[1]
+                #             0.0 ~ sum((xx[1:3:end] .* (xx[3:3:end]).^2 .* xx[2:3:end].^L) .* (1 .+ CjLk(2,L,1) * (xx[2:3:end]).^2 ./ (xx[3:3:end]).^2)) - Mhst[2]
+                #             0.0 ~ sum((xx[1:3:end] .* (xx[3:3:end]).^2 .* xx[2:3:end].^L) .* (1 .+ CjLk(4,L,1) * (xx[2:3:end]).^2 ./ (xx[3:3:end]).^2 .+ CjLk(4,L,2) * (xx[2:3:end]).^4 ./ (xx[3:3:end]).^4)) - Mhst[3]]
+                # else
+                #     deedfggg
+                # end
+                # @variables xx[1:3nMod]
+                if Ncons == 1
+                    cons = [Mhst[1] ~ sum(xx[1:3:end] .* xx[2:3:end].^L)]
+                elseif Ncons == 2
+                    cons = [Mhst[1] ~ sum(xx[1:3:end] .* xx[2:3:end].^L)
+                            Mhst[2] ~ sum((xx[1:3:end] .* (xx[3:3:end]).^2 .* xx[2:3:end].^L) .* (1 .+ CjLk(2,L,1) * (xx[2:3:end]).^2 ./ (xx[3:3:end]).^2))]
+                elseif Ncons == 3
+                    cons = [Mhst[1] ~ sum(xx[1:3:end] .* xx[2:3:end].^L)
+                            Mhst[2] ~ sum((xx[1:3:end] .* (xx[3:3:end]).^2 .* xx[2:3:end].^L) .* (1 .+ CjLk(2,L,1) * (xx[2:3:end]).^2 ./ (xx[3:3:end]).^2))
+                            Mhst[3] ~ sum((xx[1:3:end] .* (xx[3:3:end]).^2 .* xx[2:3:end].^L) .* (1 .+ CjLk(4,L,1) * (xx[2:3:end]).^2 ./ (xx[3:3:end]).^2 .+ CjLk(4,L,2) * (xx[2:3:end]).^4 ./ (xx[3:3:end]).^4))]
+                else
+                    deedfggg
+                end
+                out = zeros(Num,(3nMod - Ncons))
+                CPEjL!(out,xx,uhLN,L,nMod,Ncons;Mhst=Mhst[(Ncons+1):end],is_norm_uhL=is_norm_uhL,rtol_OrjL=rtol_OrjL)
+                @show xx
+                @show cons
+                # @show out
+            end
+            @named optf = OptimizationSystem(sum(abs2,out),xx,[];constraints=cons)
+            # @named optf = OptimizationSystem(sum(abs2,out),xx,[])
+            @show sum(abs2,out)
+            # optf = complete(optf)
             if is_simplify
                 optf = structural_simplify(optf)
                 @show observed(optf)
             end
-            # jjjjj
-            optf = complete(optf)
             if numMultistart == 1
                 if is_Jacobian 
                     if is_AD
@@ -369,15 +420,15 @@ function optimMhjL!(xx::AbstractVector{Num}, x0::AbstractVector{Pair{Num,T}}, uh
                     end
                     # # Defining the special form for specified solvor with Pkg X.
                     if is_bs 
-                        nls = Optimization.OptimizationProblem(optf,x0;lb=lbs,ub=ubs,grad=is_Jacobian,hess=is_Hessian,cons_j=is_Jacobian,cons_h=is_Hessian)
+                        nls = Optimization.OptimizationProblem(optf,x0;lb=lbs,ub=ubs,grad=true,hess=true,cons_j=true,cons_h=true)
                     else
-                        nls = Optimization.OptimizationProblem(optf,x0;grad=is_Jacobian,hess=is_Hessian,cons_j=is_Jacobian,cons_h=is_Hessian)
+                        nls = Optimization.OptimizationProblem(optf,x0;grad=true,hess=true,cons_j=true,cons_h=true)
                     end
                 else
                     if is_bs 
-                        nls = Optimization.OptimizationProblem(optf,x0;grad=true,hess=true,lb=lbs,ub=ubs)
+                        nls = Optimization.OptimizationProblem(optf,x0;grad=true,hess=true,cons_j=true,cons_h=true,lb=lbs,ub=ubs)
                     else
-                        nls = Optimization.OptimizationProblem(optf,x0;grad=true,hess=true)
+                        nls = Optimization.OptimizationProblem(optf,x0;grad=true,hess=true,cons_j=true,cons_h=true)
                     end
                 end
             else
@@ -395,15 +446,22 @@ function optimMhjL!(xx::AbstractVector{Num}, x0::AbstractVector{Pair{Num,T}}, uh
                     end
                 else
                     if is_bs 
-                        nls = Optimization.OptimizationProblem(optf,x0;grad=true,hess=true,lb=lbs,ub=ubs)
+                        nls = Optimization.OptimizationProblem(optf,x0;grad=true,hess=true,cons_j=true,cons_h=true,lb=lbs,ub=ubs)
                     else
-                        nls = Optimization.OptimizationProblem(optf,x0;grad=true,hess=true)
+                        nls = Optimization.OptimizationProblem(optf,x0;grad=true,hess=true,cons_j=true,cons_h=true)
                     end
                 end
             end
         else
-            @named optf = OptimizationSystem(sum(abs,out),xx,[])
-            optf = complete(optf)
+            # Defining the objective function `f(x,p)`
+            out = zeros(Num,3nMod)
+            CPEjL!(out,xx,uhLN,L,nMod;Mhst=Mhst,is_norm_uhL=is_norm_uhL,rtol_OrjL=rtol_OrjL)
+            @named optf = OptimizationSystem(sum(abs2,out),xx,[])
+            # optf = complete(optf)
+            if is_simplify
+                optf = structural_simplify(optf)
+                @show observed(optf)
+            end
             if numMultistart == 1
                 if is_Jacobian 
                     if is_AD
@@ -445,7 +503,9 @@ function optimMhjL!(xx::AbstractVector{Num}, x0::AbstractVector{Pair{Num,T}}, uh
                 end
             end
         end
-        res = solve(nls, optimizer()) 
+        @show is_norm_uhL,is_Jacobian,is_Hessian,is_AD
+        @show (is_constraint,is_simplify,is_bs),Ncons,numMultistart
+        res = solve(nls, optimizer();maxiters=maxIterKing) 
     elseif NL_solve == :NonlinearSolve
         # Defining the objective function `f(x,p)`
         out = Vector{Equation}(undef,3nMod)
@@ -462,11 +522,12 @@ function optimMhjL!(xx::AbstractVector{Num}, x0::AbstractVector{Pair{Num,T}}, uh
         end
         
         if Optlibary == :LeastSquaresOptim
-            res = NonlinearSolve.solve(nls, LeastSquaresOptimJL(optimizer;linsolve=linsolve,autodiff=ADtype))
+            res = NonlinearSolve.solve(nls, LeastSquaresOptimJL(optimizer;linsolve=linsolve,autodiff=ADtype);maxiters=maxIterKing)
         elseif Optlibary == :NonlinearSolve  
         else
         end
     else
+        edfbfbb
     end
 
     # @show res

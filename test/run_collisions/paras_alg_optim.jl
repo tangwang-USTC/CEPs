@@ -21,12 +21,13 @@ const nhInitial = 2e-1  # nai
  ## Notes: Quasi-Newtion methods: LBFGS
 
 
- linsolve = nothing # (default = nothing)
- linesearch, preconditioner = nothing, nothing
+ linsolve = nothing          # (default = nothing)
+ linesearch = nothing        # HagerZhang method if good for cases when `tol ≤ 10⁻⁸`
+ preconditioner = nothing
 
 NL_solve = :Optimization
 # # NL_solve = :NonlinearSolve
-# NL_solve = :LeastSquaresOptim             
+# NL_solve = :LeastSquaresOptim
 if NL_solve == :LeastSquaresOptim
     ADtype = :forward 
     ADtype = :central
@@ -43,52 +44,72 @@ if NL_solve == :LeastSquaresOptim
     
 elseif NL_solve == :Optimization                # with nonlinear inequality/equality constraints
     # Automatic Differentional
-    ADtypes = [AutoEnzyme(), AutoForwardDiff(), AutoModelingToolkit(), AutoSparseForwardDiff(), AutoModelingToolkit(true, true), AutoFiniteDiff(), 
-               AutoReverseDiff(), AutoZygote(), AutoTracker(), AutoSparseReverseDiff(), AutoSparse(AutoZygote())]
+    ADtypes = [AutoEnzyme(), AutoForwardDiff(), AutoModelingToolkit(), AutoSparseForwardDiff(), AutoModelingToolkit(true, true), 
+               AutoReverseDiff(), AutoZygote(), AutoTracker(), AutoSparseReverseDiff(), AutoSparse(AutoZygote()),
+               AutoFiniteDiff()]
     ADtype = nothing 
-    ADtype = AutoEnzyme() 
-    ADtype = AutoForwardDiff()
+    # ADtype = AutoEnzyme()              # May be false stems from the type of variables 
 
+    # ADtype = AutoZygote()              # cons_fun!(res::Zygote.Buffer{Float64, Vector{Float64}}, xx::Vector{Float64}, p::Vector{Float64}))
+    # ADtype = AutoReverseDiff()
+    ADtype = AutoForwardDiff()         # (default) cons_fun!(res::Vector{ForwardDiff.Dual{…}}, xx::Vector{ForwardDiff.Dual{…}}, p::Vector{Float64})
+
+    # # ADtype = AutoTracker()
+    # ADtype = AutoModelingToolkit()
 
     Optlibary = :Optimization
+    # Optlibary = :Optim
+    # Optlibary = :Polyalgorithms
+    # Optlibary = :MathOptInterface
+    # Optlibary = :Manopt
+
+    NL_solve_method = :trust_region         # [:trust_region, :newton, :anderson]
+
     # "L/G" means "Local/Global"
     # "N/D" denotes "derivative-free/gradient-based" algorithm
     # "η=alpha" denotes learning rate, 
     # "ρ" denotes momentum
     # "β=(beta_mean,beta_var)" denotes tuple is the exponential decay of momentums for first and second moments estimates
     if Optlibary == :Optimization 
-        optimizer = Optimization.LBFGS   #(J!, H!, cons, lb, ub), Quasi-Newtion, Augmented Lagrangian method -> a general-purpose nonlinear optimization solver
-        # optimizer = Optimization.Sophia() #(J!, H!, cons, lb, ub), for training NN
+        optimizer = Optimization.LBFGS   #(J!,H!,cons,(lb,ub)), Quasi-Newtion, Augmented Lagrangian method -> a general-purpose nonlinear optimization solver
         NL_solve_method = :quasi_newton
-    elseif Optlibary == :Optim                  #(J!, H!, cons, lb, ub)
-        # derivative-free
-        optimizer = Optim.NelderMead()                    #(lb, ub), direct search: Nelder-Mead
-        optimizer = Optim.SimulatedAnnealing()            #(lb, ub), Simulated Annealing
-        optimizer = Optim.SAMIN()                         #(cons, lb, ub, Global)), search: Simulated Annealing with bounds constraints
-        optimizer = Optim.ParticleSwarm()                 #(lb, ub, Global), Particle Swarm
 
-        # # gradient-based (J)
-        # Adam(alpha=0.0001,beta_mean=0.9,beta_var=0.999) # Adam optimizer
-        # AdaMax(alpha=0.002,beta_mean=0.9,beta_var=0.999)# AdaMax optimizer
-        optimizer = Optim.ConjugateGradient()             #(J!,linesearch), Conjugate Gradient (CG) Descent
-        optimizer = Optim.GradientDescent()               #(J!,linesearch), quasi-Newton: identity Hessian matrix
-        optimizer = Optim.BFGS()                          #(J!,linesearch, manifold), quasi-Newton: approximated Hessian matrix, Broyden-Fletcher-Goldfarb-Shanno
-        optimizer = Optim.LBFGS()                         #(J!,linesearch, manifold), quasi-Newton: Limited-memory approximated Hessian matrix
-
-        # Acceleration methods
-        optimizer = Optim.NGMRES()                        #(J!,linesearch, manifold), nonlinear preconditioner on a ℓ₂ norm subspace
-        optimizer = Optim.OACCEL()                        #(J!,linesearch, manifold), accelerates based on a minimization of a n approximation to the objective
-        
-        # Hessian-free Second Order (Hv)
-        optimizer = Optim.KrylovTrustRegion()             #(J!, Hv!), Newton-Krylov method with Trust Region dogleg method
-
-        # Hessian-Based Second Order (H)
-        optimizer = Optim.IPNewton()                      #(J!, H!, cons,linesearch), Interior-point Newton with local constraint
-        optimizer = Optim.IPNewton(Optim.Options(allow_f_increases = true, successive_f_tol = 2)) # local constraint
-        
-        optimizer = Optim.Newton()                        #(J!, H!,linesearch), first order conditions (∇f(x)=0), stable for globally well-approximated by a quadratic
-        optimizer = Optim.NewtonTrustRegion()             #(J!, H!), Newton Trust Region dogleg method with Cholesky decomposition under assumption of locally quadratic.
-    elseif Optlibary == :NLopt                  #(J!, H!, cons, lb, ub)
+        #### for training NN such as `Lux` or `Flux`
+        # optimizer = Optimization.Sophia #(J!,H!,cons),
+        # NL_solve_method = :newton
+    elseif Optlibary == :Optim                  #(J!,H!,cons,lb,ub)
+        # if is_constraint
+            # # derivative-free
+            # optimizer = Optim.NelderMead                    #((lb,ub),), direct search: Nelder-Mead
+            # optimizer = Optim.SAMIN                         #(lb,ub,Global)), search: Simulated Annealing with bounds constraints
+            # optimizer = Optim.ParticleSwarm                 #((lb,ub),Global), Particle Swarm
+            # optimizer = Optim.SimulatedAnnealing            #(), Simulated Annealing
+    
+            # # # gradient-based (J)           # best solution
+            # # Adam(alpha=0.0001,beta_mean=0.9,beta_var=0.999) # Adam optimizer
+            # # AdaMax(alpha=0.002,beta_mean=0.9,beta_var=0.999)# AdaMax optimizer
+            # optimizer = Optim.ConjugateGradient             #(J!,(lb,ub),linesearch), Conjugate Gradient (CG) Descent
+            # optimizer = Optim.GradientDescent               #(J!,(lb,ub),linesearch), quasi-Newton: identity Hessian matrix
+            # optimizer = Optim.BFGS                          #(J!,(lb,ub),linesearch, manifold), quasi-Newton: approximated Hessian matrix, Broyden-Fletcher-Goldfarb-Shanno
+            optimizer = Optim.LBFGS                         #(J!,(lb,ub),linesearch, manifold), quasi-Newton: Limited-memory approximated Hessian matrix
+            
+            # # # Hessian-free Second Order (Hv)
+            # optimizer = Optim.KrylovTrustRegion             #(J!,Hv!,lb,ub), Newton-Krylov method with Trust Region dogleg method
+            
+            # # # Hessian-Based Second Order (H)
+            # optimizer = Optim.Newton                        #(J!,H!,linesearch), first order conditions (∇f(x)=0), stable for globally well-approximated by a quadratic
+            # optimizer = Optim.NewtonTrustRegion             #(J!,H!), Newton Trust Region dogleg method with Cholesky decomposition under assumption of locally quadratic.
+    
+            # # # gradient-based (J), Acceleration methods
+            # optimizer = Optim.OACCEL                        #(J!,linesearch, manifold), accelerates based on a minimization of a n approximation to the objective
+            # optimizer = Optim.NGMRES                        #(J!,linesearch, manifold), nonlinear preconditioner on a ℓ₂ norm subspace
+        # else
+            # # Hessian-Based Second Order (H)
+            # optimizer = Optim.IPNewton                      #(J!,H!,cons,lb,ub,linesearch), Interior-point Newton with local constraint
+            # # optimizer = Optim.IPNewton(Optim.Options(allow_f_increases = true, successive_f_tol = 2)) # local constraint
+        # end
+        # optimizer = Optim.BFGS
+    elseif Optlibary == :NLopt                  #(J!,H!,cons,lb,ub)
         # Local optimizer
         # derivative-free
         optimizer = NLopt.LN_COBYLA()                 # (Constrained Optimization BY Linear Approximations) nonlinear inequality/equality constraints, constructing successive linear approximations of the objective function and constraints
@@ -102,7 +123,7 @@ elseif NL_solve == :Optimization                # with nonlinear inequality/equa
         optimizer = NLopt.LN_BOBYQA()
 
         # gradient-based
-        optimizer = NLopt.LD_SLSQP()                   # ( sequential quadratic programming) nonlinear inequality/equality constraints
+        optimizer = NLopt.LD_SLSQP()                   # (Sequential quadratic programming) nonlinear inequality/equality constraints
         optimizer = NLopt.LD_MMA()                     # (Method of Moving Asymptotes), improved CCSAQ for nonlinear inequality constraints
         optimizer = NLopt.LD_CCSAQ()                   # (conservative convex separable approximation)
         optimizer = NLopt.LD_LBFGS_NOCEDAL()
@@ -141,7 +162,7 @@ elseif NL_solve == :Optimization                # with nonlinear inequality/equa
         optimizer = NLopt.G_MLSL()
         optimizer = NLopt.G_MLSL_LDS()
         optimizer = NLopt.GN_ESCH()
-    elseif Optlibary == :Optimisers             #(J!, H!, cons, lb, ub), for training NN
+    elseif Optlibary == :Optimisers              #(J!,H!,cons,lb,ub), for training NN
         optimizer = Optimisers.Descent(η=0.1)                # Classic gradient descent
         optimizer = Optimisers.Momentum(η=0.01,ρ=0.9)        # Classic gradient descent
         optimizer = Optimisers.Nesterov(η=0.001,ρ=0.9)       # Gradient descent
@@ -159,23 +180,23 @@ elseif NL_solve == :Optimization                # with nonlinear inequality/equa
         optimizer = Optimisers.AdamW(η=0.001, β=(0.9, 0.999), λ=0) # AdamW
         optimizer = Optimisers.ADABelief(η=0.001, β=(0.9, 0.999))  # ADABelief variant of Adam
         # Lion(η=0.001, β=(0.9, 0.999))                # Lion
-    elseif Optlibary == :Polyalgorithms          #(J!, H!, cons, lb, ub),   # Adam + BFGS
-        optimizer = PolyOpt()
-    elseif Optlibary == :MathOptInterface        #(J!, H!, cons, lb, ub)
-        optimizer = Ipopt.Optimizer()                 # C++
-        optimizer = KNITRO.Optimizer()
-        optimizer = Juniper.Optimizer()
+    elseif Optlibary == :Polyalgorithms          #(J!,H!,cons,lb,ub),   # Adam + BFGS
+        optimizer = PolyOpt
+    elseif Optlibary == :MathOptInterface        #(J!,H!,cons)
+        optimizer = Ipopt.Optimizer              # C++ 
+        # optimizer = KNITRO.Optimizer()
+        # optimizer = Juniper.Optimizer()
     else
-        if Optlibary == :Manopt                  #(J!, lb, ub, Global, Monifold)
-            optimizer = OptimizationManopt.NelderMeadOptimizer()                 # Nelder-Mead (NM)
-            optimizer = OptimizationManopt.QuasiNewtonOptimizer()                # quasi-Newton 
-            optimizer = OptimizationManopt.GradientDescentOptimizer()            # gradient descent (GD)
-            optimizer = OptimizationManopt.ConjugateGradientDescentOptimizer()   # conjugate gradient (CG) descent 
-            optimizer = OptimizationManopt.CMAESOptimizer()                      # CMAES, convex bundle method (CBM)
-            optimizer = OptimizationManopt.ParticleSwarmOptimizer()              # particle swarm Optimization (PSO)
-            optimizer = OptimizationManopt.ConvexBundleOptimizer()               # 
-            optimizer = OptimizationManopt.FrankWolfeOptimizer()                 # Frank-Wolfe 
-        elseif Optlibary == :Metaheuristics          #((cons), lb, ub, Global), Metaheuristic algorithm
+        if Optlibary == :Manopt                  #(J!,lb,ub,Global, Monifold)
+            optimizer = OptimizationManopt.NelderMeadOptimizer                 # Nelder-Mead (NM)
+            optimizer = OptimizationManopt.QuasiNewtonOptimizer                # quasi-Newton 
+            optimizer = OptimizationManopt.GradientDescentOptimizer            # gradient descent (GD)
+            optimizer = OptimizationManopt.ConjugateGradientDescentOptimizer   # conjugate gradient (CG) descent 
+            optimizer = OptimizationManopt.CMAESOptimizer                      # CMAES, convex bundle method (CBM)
+            optimizer = OptimizationManopt.ParticleSwarmOptimizer              # particle swarm Optimization (PSO)
+            optimizer = OptimizationManopt.ConvexBundleOptimizer               # 
+            optimizer = OptimizationManopt.FrankWolfeOptimizer                 # Frank-Wolfe 
+        elseif Optlibary == :Metaheuristics          #((cons), lb,ub,Global), Metaheuristic algorithm
             optimizer = OptimizationMetaheuristics.ECA()         # Evolutionary Centers Algorithm
             optimizer = OptimizationMetaheuristics.DE()          # Differential Evolution
             optimizer = OptimizationMetaheuristics.PSO()         # Particle Swarm Optimization
@@ -183,28 +204,28 @@ elseif NL_solve == :Optimization                # with nonlinear inequality/equa
             optimizer = OptimizationMetaheuristics.CGSA()        # Gravitational Search Algorithm
             optimizer = OptimizationMetaheuristics.SA()          # Simulated Annealing
             optimizer = OptimizationMetaheuristics.WOA()         # Whale Optimization Algorithm
-        elseif Optlibary == :BlackBoxOptim           #(lb, ub, Global), Metaheuristic/stochastic algorithms
+        elseif Optlibary == :BlackBoxOptim           #(lb,ub,Global), Metaheuristic/stochastic algorithms
             optimizer = ()       # Natural Evolution Strategy (NES)
             optimizer = ()       # Differential Evolution (DE) Strategy
             optimizer = ()       # Direct search (DS)
             optimizer = ()       # Resampling Memetic Searchers
             optimizer = ()       # Stochastic Approximation
             optimizer = ()       # Random Search (RS)
-        elseif Optlibary == :Evolutionary            #(lb, ub, Global)
+        elseif Optlibary == :Evolutionary            #(lb,ub,Global)
             optimizer = Evolutionary.GA()   # Genetic Algorithm optimizer
             optimizer = Evolutionary.DE()   # Differential Evolution optimizer
             optimizer = Evolutionary.ES()   # Evolution Strategy algorithm
             optimizer = Evolutionary.CMAES()# Covariance Matrix Adaptation Evolution Strategy (CMAES) algorithm
-        elseif Optlibary == :CMAEvolutionStrategy    #(lb, ub, Global) Covariance Matrix Adaptation Evolution Strategy (CMAES) algorithm.
+        elseif Optlibary == :CMAEvolutionStrategy    #(lb,ub,Global) Covariance Matrix Adaptation Evolution Strategy (CMAES) algorithm.
             optimizer = CMAEvolutionStrategyOpt() #
-        elseif Optlibary == :GCMAES                  #(J!, lb, ub, Global), Gradient-based Covariance Matrix Adaptation Evolutionary Strategy (CMAES)
+        elseif Optlibary == :GCMAES                  #(J!,lb,ub,Global), Gradient-based Covariance Matrix Adaptation Evolutionary Strategy (CMAES)
             optimizer = GCMAESOpt()
-        elseif Optlibary == :MultistartOptimization  #(lb, ub, Global)
+        elseif Optlibary == :MultistartOptimization  #(lb,ub,Global)
             n_initial = 10
             optimizer = MultistartOptimization.TikTak(n_initial)
-        elseif Optlibary == :NOMAD                   #(lb, ub, Global), C++, Mesh Adaptive Direct Search algorithm (MADS), designed for difficult blackbox optimization problems
+        elseif Optlibary == :NOMAD                   #(lb,ub,Global), C++, Mesh Adaptive Direct Search algorithm (MADS), designed for difficult blackbox optimization problems
             optimizer = NOMADOpt()
-        elseif Optlibary == :SpeedMapping           #(J!, lb, ub) without constraint
+        elseif Optlibary == :SpeedMapping           #(J!,lb,ub) without constraint
             optimizer = SpeedMappingOpt()
         else
             dsfgfgf
@@ -507,10 +528,14 @@ else
     ADtype = :central    # A little more complicated but maybe obtaining no benefits.
 end 
 
-is_Jacobian = true      # (=true, default) Whether Jacobian matrix will be used to improve the performance of the optimizations.
 show_trace = false      # (=false, default) 
 # ########## The initial solution noises
 maxIterKing = 500       # (=200 default) The maximum inner iteration number for King's optimization
 x_tol = epsT / 1000     # (=1e-13, default)
 f_tol = epsT / 1000 
 g_tol = epsT / 1000
+
+ optimizer, ADtype
+#  @show NL_solve,Optlibary,optimizer,ADtype, (is_C,is_constraint,is_bs,is_MTK)
+ 
+

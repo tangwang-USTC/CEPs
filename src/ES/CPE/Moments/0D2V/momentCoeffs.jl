@@ -84,14 +84,43 @@ function CMjL(j::T) where {T<:Real}
 end
 # f(j) = [2 / sqrtpi * gamma((3+j)/2) / (prod(3:2:j+1) / 2^(j/2))-1, 2 / sqrtpi * gamma((3+j)/2) / (2.0 / sqrtpi * prod(2:1:(j+1)/2))-1]
 
+
+
 """
-  Coefficient ofin the Characteristic Parameter Equations (CPEs)
+  Coefficient of the Characteristic Parameter Equations (CPEs)
   when `f̂₀(v̂)` is approximated by the KMM:
 
   `iseven(j) == true`
 """
 
 # CjLk(j::Int,L::Int,k::Int) = 2^k * binomial(Int((j-L)/2),k) / prod((2L+3):2:(2(L+k)+1)) 
+
+function CjLk(j::T,L::T,k::AbstractVector{T}) where {T<:Real}
+
+    if L == 0
+        return CjLk(j,k)
+    else
+        jL2 = (j - L) / 2 + 1
+        cjlk = gamma(jL2) ./ gamma.(jL2 .- k)
+        jL2 = 1.5 + L
+        cjlk .*= (gamma(jL2) ./ gamma.(jL2 .+ k))
+        return cjlk ./ gamma.(1 .+ k)
+    end
+end
+
+# For `ReverseDiff.jl`
+function CjLk(j::T,L::T,k) where {T<:Real}
+
+    if L == 0
+        return CjLk(j,k)
+    else
+        jL2 = (j - L) / 2 + 1
+        cjlk = gamma(jL2) ./ gamma.(jL2 .- k)
+        jL2 = 1.5 + L
+        cjlk .*= (gamma(jL2) ./ gamma.(jL2 .+ k))
+        return cjlk ./ gamma.(1 .+ k)
+    end
+end
 
 function CjLk(j::T,L::T,k::T) where {T<:Real}
 
@@ -118,6 +147,32 @@ function CjLk(j::T,k::T) where {T<:Real}
     end
 end
 
+
+
+
+"""
+  Coefficient of the derivatives in the Characteristic Parameter Equations (CPEs)
+  when `f̂₀(v̂)` is approximated by the KMM:
+
+  `iseven(j) == true`
+"""
+
+# CjLk2k(j::Int,L::Int,k::Int) = 2k * CjLk
+
+function CjLk2k(j::T,L::T,k::T) where {T<:Real}
+dddd
+    if L == 0
+        return CjLk2k(j,k)
+    else
+        return 2k * CjLk(j,L,k)
+    end
+end
+
+# `L = 0`
+function CjLk2k(j::T,k::T) where {T<:Real}
+ololloio
+    return 2k * CjLk(j,k)
+end
 
 
 

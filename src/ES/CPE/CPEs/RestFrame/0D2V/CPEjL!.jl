@@ -1,7 +1,8 @@
 
 
 """
-  Characteristic parameter equations (CPEs) 
+ Applying Nonlinear Programming (NLP) method or Nonlinear Least Square (NLS) method
+    to solve Characteristic parameter equations (CPEs) 
     for weakly anisotropic and moderate anisotropic plasma system 
     with general axisymmetric velocity space. 
     The plasma is in a local sub-equilibrium state.
@@ -122,13 +123,114 @@ function CPEjL!(out::AbstractVector{Num}, x::AbstractVector{Num}, uhLN::T, L::In
         # OrjL = zeros(Num,nMod)
         # OrjLNb!(OrjL,uvth2,j,L,N,nMod;rtol_OrjL=rtol_OrjL)
         
-        CjLks = CjLk.(T(j),T(L),T.(1:N))
+        CjLks = CjLk(T(j),T(L),T.(1:N))
         OrjL =  CjLks[1] * uvth2 + CjLks[2] * uvth2 .^2
 
         # @show OrjL 
         # rrfrrrr4444
 
         out[nj] = sum((x[1:3:end] .* vhth2.^N .* uhL) .* (1 .+ OrjL)) - Mhst[nj]
+    
+        for k in 2:nMod
+            for s in 1:3
+                nj += 1
+                j += 2
+                N = (j - L) / 2 |> Int
+                OrjL = zeros(Num,nMod)
+                OrjLNb!(OrjL,uvth2,j,L,N,nMod;rtol_OrjL=rtol_OrjL)
+                out[nj] = sum((x[1:3:end] .* vhth2.^N .* uhL) .* (1 .+ OrjL)) - Mhst[nj]
+            end
+        end
+        return out
+    end
+end
+
+# For "Optimization.jl" when `is_MTK=true` and `is_constraint=true`
+function CPEjL!(out::AbstractVector{Num}, x::AbstractVector{Num}, uhLN::T, L::Int, nMod::Int, Ncons::Int;
+    Mhst::AbstractVector{T}=[0.1, 1.0],is_norm_uhL::Bool=true,rtol_OrjL::T=1e-10) where{T}
+
+    if L == 1000
+    #     CPEj0!(out,nMod;Mhst=Mhst,rtol_OrjL=rtol_OrjL)
+    # elseif L == 111
+    #     CPEj1!(out,uhLN,nMod;Mhst=Mhst,is_norm_uhL=is_norm_uhL,rtol_OrjL=rtol_OrjL)
+    else
+        vhth2 = (x[3:3:end]).^2 
+        uvth2 = (x[2:3:end]).^2 ./ vhth2              # uh .^ 2 ./ vhth .^ 2
+        
+        if is_norm_uhL
+            uhL = (x[2:3:end] / uhLN).^L
+        else
+            uhL = x[2:3:end].^L
+        end
+    
+        if Ncons == 3
+            nj = 0
+            j = L + 4
+        elseif Ncons == 2
+            nj = 1
+            j = L + 4
+            # OrjL = zeros(T,nMod)
+            N = 2
+    
+            # OrjL = zeros(Num,nMod)
+            # OrjLNb!(OrjL,uvth2,j,L,N,nMod;rtol_OrjL=rtol_OrjL)
+            
+            CjLks = CjLk(T(j),T(L),T.(1:N))
+            OrjL =  CjLks[1] * uvth2 + CjLks[2] * uvth2 .^2
+    
+            # @show OrjL 
+            # rrfrrrr4444
+    
+            out[nj] = sum((x[1:3:end] .* vhth2.^N .* uhL) .* (1 .+ OrjL)) - Mhst[nj]
+        elseif Ncons == 1
+            nj = 1
+            j = L + 2
+            OrjL = CjLk(j,L,1) * uvth2
+            out[nj] = sum((x[1:3:end] .* vhth2 .* uhL) .* (1 .+ OrjL)) - Mhst[nj]
+        
+            nj += 1
+            j = L + 4
+            # OrjL = zeros(T,nMod)
+            N = 2
+    
+            # OrjL = zeros(Num,nMod)
+            # OrjLNb!(OrjL,uvth2,j,L,N,nMod;rtol_OrjL=rtol_OrjL)
+            
+            CjLks = CjLk(T(j),T(L),T.(1:N))
+            OrjL =  CjLks[1] * uvth2 + CjLks[2] * uvth2 .^2
+    
+            # @show OrjL 
+            # rrfrrrr4444
+    
+            out[nj] = sum((x[1:3:end] .* vhth2.^N .* uhL) .* (1 .+ OrjL)) - Mhst[nj]
+        elseif Ncons == 0
+            nj = 1
+            # j = L + 0
+            out[nj] = sum(x[1:3:end] .* uhL) - Mhst[nj]
+        
+            nj += 1
+            j = L + 2
+            OrjL = CjLk(j,L,1) * uvth2
+            out[nj] = sum((x[1:3:end] .* vhth2 .* uhL) .* (1 .+ OrjL)) - Mhst[nj]
+        
+            nj += 1
+            j = L + 4
+            # OrjL = zeros(T,nMod)
+            N = 2
+    
+            # OrjL = zeros(Num,nMod)
+            # OrjLNb!(OrjL,uvth2,j,L,N,nMod;rtol_OrjL=rtol_OrjL)
+            
+            CjLks = CjLk(T(j),T(L),T.(1:N))
+            OrjL =  CjLks[1] * uvth2 + CjLks[2] * uvth2 .^2
+    
+            # @show OrjL 
+            # rrfrrrr4444
+    
+            out[nj] = sum((x[1:3:end] .* vhth2.^N .* uhL) .* (1 .+ OrjL)) - Mhst[nj]
+        else
+            dfbffd
+        end
     
         for k in 2:nMod
             for s in 1:3
